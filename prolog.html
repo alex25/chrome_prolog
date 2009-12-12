@@ -2,7 +2,26 @@
 <html>
 <head>
 	<title> ioctl.org : jsprolog </title>
-	<link rel="stylesheet" href="/style/style.css"/>
+<style>
+body
+{
+  background: white;
+  border: 1px solid black;
+}
+
+form
+{
+  margin: 10px;
+}
+
+
+input, select, textarea
+{
+  font-size: 10px;
+  background-color: #CCCCCC;
+  border: 1px solid #666666;
+}
+</style>
 <script language="JavaScript">
 <!--
 // Copyright (c) jan grant
@@ -1030,7 +1049,7 @@ tarTest(b).
 <form name="input" action="javascript:freeform(); //">
 <p>	Enter your query:
 </p>
-<p>	<input type="text" name="query" value="bagof(c, triple(sc, A, B), L), length(L, N) # L should have 21 elements" size="90" />
+<p>	<input type="text" name="query" value="bagof(c, triple(sc, A, B), L), length(L, N) # L should have 21 elements" size="70" />
 </p>
 <p>
 	<input type="button" value="Run query" onclick="freeform(); return true;" />
