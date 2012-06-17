@@ -25,20 +25,20 @@ function execute($rules, $query) {
         if ($show)
             $parsedRule->dump();
     }
-/*
-    echo ("\nAttaching builtins to database.\n");
-    $outr['builtin'] = array(
-        "compare/3" => Comparitor,
-        "cut/0" => Cut,
-        "call/1" => Call,
-        "fail/0" => Fail,
-        "bagof/3" => BagOf,
-        "external/3" => External,
-        "external2/3" => ExternalAndParse
-    );
+    /*
+      echo ("\nAttaching builtins to database.\n");
+      $outr['builtin'] = array(
+      "compare/3" => Comparitor,
+      "cut/0" => Cut,
+      "call/1" => Call,
+      "fail/0" => Fail,
+      "bagof/3" => BagOf,
+      "external/3" => External,
+      "external2/3" => ExternalAndParse
+      );
 
-    echo ("Attachments done.\n");
-*/
+      echo ("Attachments done.\n");
+     */
     echo ("\nParsing query.\n");
     $q = ParseBody(new Tokeniser($query));
     if ($q == null) {
@@ -378,14 +378,14 @@ class Term {
     public function dump() {
         if ($this->name == "cons") {
             $x = $this;
-            while ($x->type == "Term" && $x->name == "cons" && $x->partlist->list->length == 2) {
+            while ($x->type == "Term" && $x->name == "cons" && count($x->partlist->list) == 2) {
                 $x = $x->partlist->list[1];
             }
             if (($x->type == "Atom" && $x->name == "nil") || $x->type == "Variable") {
                 $x = $this;
                 echo ("[");
                 $com = false;
-                while ($x->type == "Term" && $x->name == "cons" && $x->partlist->list->length == 2) {
+                while ($x->type == "Term" && $x->name == "cons" && count($x->partlist->list) == 2) {
                     if ($com)
                         echo (", ");
                     $x->partlist->list[0]->dump();
