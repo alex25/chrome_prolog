@@ -475,6 +475,9 @@ $rules = <<<BOZ
 pere(anakin, luke).
 mere(shmi, anakin).
 mere(padme, anakin).
+
+fils(X,Y) :- pere(Y,X).
+fils(X,Y) :- mere(Y,X).
 BOZ;
 $query = "pere(anakin, X)";
 
