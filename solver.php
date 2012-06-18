@@ -53,9 +53,44 @@ function execute($rules, $query) {
     }
 
     $vs = array_values(varNames($q->list));
+    
+    //renameVariables($q->list, 0, array());
 
     // Prove the query.
     prove(renameVariables($q->list, 0, array()), array(), $outr, 1, applyOne('printVars', $vs));
+}
+
+// Go through a list of terms (ie, a Body or Partlist's list) renaming variables
+// by appending 'level' to each variable name.
+// How non-graph-theoretical can this get?!?
+// "parent" points to the subgoal, the expansion of which lead to these terms.
+function renameVariables($list, $level, $parent) {
+    $out = array();
+
+    if ($list instanceof Atom) {
+        return $list;
+    } else if ($list instanceof Variable) {
+        return new Variable($list->name . "." . $level);
+    } else if ($list instanceof Term) {
+        $out = new Term($list->name, renameVariables($list->partlist->list, $level, $parent));
+        $out->parent = $parent;
+        return $out;
+    }
+
+    foreach ($list as $i => $item) {
+        $out[$i] = renameVariables($list[$i], $level, $parent);
+        /*
+          if (list[i].type == "Atom") {
+          out[i] = list[i];
+          } else if (list[i].type == "Variable") {
+          out[i] = new Variable(list[i].name + "." + level);
+          } else if (list[i].type == "Term") {
+          (out[i] = new Term(list[i].name, renameVariables(list[i].partlist.list, level, parent))).parent = parent;
+          }
+         */
+    }
+
+    return $out;
 }
 
 // Functional programming bits... Currying and suchlike
