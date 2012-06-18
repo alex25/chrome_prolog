@@ -25,20 +25,20 @@ function execute($rules, $query) {
         if ($show)
             $parsedRule->dump();
     }
-    /*
-      echo ("\nAttaching builtins to database.\n");
-      $outr['builtin'] = array(
-      "compare/3" => Comparitor,
-      "cut/0" => Cut,
-      "call/1" => Call,
-      "fail/0" => Fail,
-      "bagof/3" => BagOf,
-      "external/3" => External,
-      "external2/3" => ExternalAndParse
-      );
 
-      echo ("Attachments done.\n");
-     */
+    echo ("\nAttaching builtins to database.\n");
+    $outr['builtin'] = array(
+    /*    "compare/3" => Comparitor,
+        "cut/0" => Cut,
+        "call/1" => Call,
+        "fail/0" => Fail,
+        "bagof/3" => BagOf,
+        "external/3" => External,
+        "external2/3" => ExternalAndParse*/
+    );
+
+    echo ("Attachments done.\n");
+
     echo ("\nParsing query.\n");
     $q = ParseBody(new Tokeniser($query));
     if ($q == null) {
@@ -53,9 +53,8 @@ function execute($rules, $query) {
     }
 
     $vs = array_values(varNames($q->list));
-    
-    //renameVariables($q->list, 0, array());
 
+    //renameVariables($q->list, 0, array());
     // Prove the query.
     prove(renameVariables($q->list, 0, array()), array(), $outr, 1, applyOne('printVars', $vs));
 }
@@ -524,6 +523,99 @@ function varNames($list) {
     return $out;
 }
 
+// The main proving engine. Returns: null (keep going), other (drop out)
+function prove($goalList, $environment, $db, $level, $reportFunction) {
+
+    //DEBUG: print ("in main prove...\n");
+    if (count($goalList) == 0) {
+        call_user_func($reportFunction, $environment);
+
+        //if (!more) return "done";
+        return null;
+    }
+
+    // Prove the first term in the goallist. We do this by trying to
+    // unify that term with the rules in our database. For each
+    // matching rule, replace the term with the body of the matching
+    // rule, with appropriate substitutions.
+    // Then prove the new goallist. (recursive call)
+
+    $thisTerm = $goalList[0];
+    //print ("Debug: thisterm = "); thisTerm.print(); print("\n");
+    // Do we have a builtin?
+/*    $builtin = $db['builtin'][$thisTerm->name . "/" . count($thisTerm->partlist->list)];
+    // print ("Debug: searching for builtin "+thisTerm.name+"/"+thisTerm.partlist.list.length+"\n");
+    if ($builtin) {
+        //print ("builtin with name " + thisTerm.name + " found; calling prove() on it...\n");
+        // Stick the new body list
+        $newGoals = array();
+        for ($j = 1; $j < count($goalList); $j++)
+            $newGoals[$j - 1] = $goalList[$j];
+        return $builtin($thisTerm, $newGoals, $environment, $db, $level + 1, $reportFunction);
+    }
+*/
+    foreach ($db as $i => $item) {
+        if ($i === 'builtin') continue;
+        
+        //print ("Debug: in rule selection. thisTerm = "); thisTerm.print(); print ("\n");
+        if ($thisTerm->excludeRule === $i) {
+            // print("DEBUG: excluding rule number $i in attempt to satisfy "); $thisTerm->dump(); print("\n");
+            continue;
+        }
+
+        $rule = $db[$i];
+
+        // We'll need better unification to allow the 2nd-order
+        // rule matching ... later.
+        if ($rule->head->name != $thisTerm->name)
+            continue;
+        
+        // Rename the variables in the head and body
+        $renamedHead = new Term($rule->head->name, renameVariables($rule->head->partlist->list, $level, $thisTerm));
+        // renamedHead.ruleNumber = i;
+
+        $env2 = unify($thisTerm, $renamedHead, $environment);
+        if ($env2 == null)
+            continue;
+
+        $body = $rule->body;
+        if ($body != null) {
+            $newFirstGoals = renameVariables($rule->body->list, $level, $renamedHead);
+            // Stick the new body list
+            $newGoals = array();
+            for ($j = 0; $j < count($newFirstGoals); $j++) {
+                $newGoals[$j] = $newFirstGoals[$j];
+                if ($rule->body->list[$j]->excludeThis)
+                    $newGoals[$j]->excludeRule = $i;
+            }
+            for ($k = 1; $k < count($goalList); $k++)
+                $newGoals[$j++] = $goalList[$k];
+            $ret = prove($newGoals, $env2, $db, $level + 1, $reportFunction);
+            if ($ret != null)
+                return $ret;
+        } else {
+            // Just prove the rest of the goallist, recursively.
+            $newGoals = aray();
+            for ($j = 1; $j < count($goalList); $j++)
+                $newGoals[$j - 1] = $goalList[$j];
+            $ret = prove($newGoals, $env2, $db, $level + 1, $reportFunction);
+            if ($ret != null)
+                return $ret;
+        }
+
+        if ($renamedHead->cut) {
+            //print ("Debug: this goal "); thisTerm.print(); print(" has been cut.\n");
+            break;
+        }
+        if ($thisTerm->parent->cut) {
+            //print ("Debug: parent goal "); thisTerm.parent.print(); print(" has been cut.\n");
+            break;
+        }
+    }
+
+    return null;
+}
+
 $rules = <<<BOZ
 #starwars
 pere(anakin, luke).
@@ -534,7 +626,7 @@ fils(X,Y) :- pere(Y,X).
 fils(X,Y) :- mere(Y,X).
 BOZ;
 $query = "pere(anakin, X)";
-$query = "bagof(c, triple(sc, A, B), L), length(L, N) # L should have 21 elements";
+//$query = "bagof(c, triple(sc, A, B), L), length(L, N) # L should have 21 elements";
 
 execute($rules, $query)
 ?>
