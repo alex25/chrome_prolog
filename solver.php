@@ -52,7 +52,7 @@ function execute($rules, $query) {
         echo ("\n\n");
     }
 
-    $vs = varNames($q->list);
+    $vs = array_values(varNames($q->list));
 
     // Prove the query.
     prove(renameVariables($q->list, 0, array()), array(), $outr, 1, applyOne('printVars', $vs));
@@ -470,6 +470,25 @@ class Body {
 
 }
 
+function varNames($list) {
+    $out = array();
+
+    foreach ($list as $item) {
+        switch ($item->type) {
+            case 'Variable' :
+                $out[$item->name] = $item;
+                break;
+
+            case 'Term' :
+                $out2 = varNames($item->partlist->list);
+                $out = array_merge($out, $out2);
+                break;
+        }
+    }
+
+    return $out;
+}
+
 $rules = <<<BOZ
 #starwars
 pere(anakin, luke).
@@ -480,6 +499,7 @@ fils(X,Y) :- pere(Y,X).
 fils(X,Y) :- mere(Y,X).
 BOZ;
 $query = "pere(anakin, X)";
+$query = "bagof(c, triple(sc, A, B), L), length(L, N) # L should have 21 elements";
 
 execute($rules, $query)
 ?>
