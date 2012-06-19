@@ -5,7 +5,8 @@
  * and open the template in the editor.
  */
 
-function execute($rules, $query) {
+function execute($rules, $query)
+{
 
     $show = true;
 
@@ -28,13 +29,13 @@ function execute($rules, $query) {
 
     echo ("\nAttaching builtins to database.\n");
     $outr['builtin'] = array(
-    /*    "compare/3" => Comparitor,
-        "cut/0" => Cut,
-        "call/1" => Call,
-        "fail/0" => Fail,
-        "bagof/3" => BagOf,
-        "external/3" => External,
-        "external2/3" => ExternalAndParse*/
+            /*    "compare/3" => Comparitor,
+              "cut/0" => Cut,
+              "call/1" => Call,
+              "fail/0" => Fail,
+              "bagof/3" => BagOf,
+              "external/3" => External,
+              "external2/3" => ExternalAndParse */
     );
 
     echo ("Attachments done.\n");
@@ -63,7 +64,8 @@ function execute($rules, $query) {
 // by appending 'level' to each variable name.
 // How non-graph-theoretical can this get?!?
 // "parent" points to the subgoal, the expansion of which lead to these terms.
-function renameVariables($list, $level, $parent) {
+function renameVariables($list, $level, $parent)
+{
     $out = array();
 
     if ($list instanceof Atom) {
@@ -93,13 +95,15 @@ function renameVariables($list, $level, $parent) {
 }
 
 // Functional programming bits... Currying and suchlike
-function applyOne($f, $arg1) {
+function applyOne($f, $arg1)
+{
     return function ($arg2) {
                 return $f($arg1, $arg2);
             };
 }
 
-function ParseRule($tk) {
+function ParseRule($tk)
+{
     // A rule is a Head followed by . or by :- Body
     $h = ParseHead($tk);
     if (!$h)
@@ -121,12 +125,14 @@ function ParseRule($tk) {
     return new Rule($h, $b);
 }
 
-function ParseHead($tk) {
+function ParseHead($tk)
+{
     // A head is simply a term. (errors cascade back up)
     return ParseTerm($tk);
 }
 
-function ParseBody($tk) {
+function ParseBody($tk)
+{
     // Body -> Term {, Term...}
 
     $p = array();
@@ -144,7 +150,8 @@ function ParseBody($tk) {
     return $p;
 }
 
-function ParseTerm($tk) {
+function ParseTerm($tk)
+{
     // Term -> [NOTTHIS] id ( optParamList )
 
     if ($tk->type == "punc" && $tk->current == "!") {
@@ -200,7 +207,8 @@ function ParseTerm($tk) {
 }
 
 // This was a beautiful piece of code. It got kludged to add [a,b,c|Z] sugar.
-function ParsePart($tk) {
+function ParsePart($tk)
+{
     // Part -> var | id | id(optParamList)
     // Part -> [ listBit ] ::-> cons(...)
     if ($tk->type == "var") {
@@ -288,52 +296,61 @@ function ParsePart($tk) {
     return new Term($name, $p);
 }
 
-class Atom {
+class Atom
+{
 
     public $name;
     public $type;
 
-    public function __construct($head) {
+    public function __construct($head)
+    {
         $this->name = $head;
         $this->type = "Atom";
     }
 
-    public function dump() {
+    public function dump()
+    {
         echo $this->name;
     }
 
 }
 
-class Variable {
+class Variable
+{
 
     public $name;
     public $type;
 
-    public function __construct($head) {
+    public function __construct($head)
+    {
         $this->name = $head;
         $this->type = "Variable";
     }
 
-    public function dump() {
+    public function dump()
+    {
         echo $this->name;
     }
 
 }
 
-class Tokeniser {
+class Tokeniser
+{
 
     public $remainder;
     public $current;
 
     // The Tiny-Prolog parser goes here.
-    public function __construct($string) {
+    public function __construct($string)
+    {
         $this->remainder = $string;
         $this->current = null;
         $this->type = null; // "eof", "id", "var", "punc" etc.
         $this->consume(); // Load up the first token.
     }
 
-    public function consume() {
+    public function consume()
+    {
         if ($this->type == "eof")
             return;
         // Eat any leading WS
@@ -397,19 +414,22 @@ class Tokeniser {
 
 }
 
-class Term {
+class Term
+{
 
     public $name;
     public $type;
     public $partlist;
 
-    public function __construct($head, $list) {
+    public function __construct($head, $list)
+    {
         $this->name = $head;
         $this->partlist = new Partlist($list);
         $this->type = "Term";
     }
 
-    public function dump() {
+    public function dump()
+    {
         if ($this->name == "cons") {
             $x = $this;
             while ($x->type == "Term" && $x->name == "cons" && count($x->partlist->list) == 2) {
@@ -441,15 +461,18 @@ class Term {
 
 }
 
-class Partlist {
+class Partlist
+{
 
     public $list;
 
-    public function __construct($list) {
+    public function __construct($list)
+    {
         $this->list = $list;
     }
 
-    public function dump() {
+    public function dump()
+    {
         for ($i = 0; $i < count($this->list); $i++) {
             $this->list[$i]->dump();
             if ($i < count($this->list) - 1)
@@ -459,12 +482,14 @@ class Partlist {
 
 }
 
-class Rule {
+class Rule
+{
 
     public $head;
     public $body;
 
-    public function __construct($head, $bodylist = null) {
+    public function __construct($head, $bodylist = null)
+    {
         $this->head = $head;
         if ($bodylist != null)
             $this->body = new Body($bodylist);
@@ -472,7 +497,8 @@ class Rule {
             $this->body = null;
     }
 
-    public function dump() {
+    public function dump()
+    {
         if ($this->body == null) {
             $this->head->dump();
             echo (".\n");
@@ -486,15 +512,18 @@ class Rule {
 
 }
 
-class Body {
+class Body
+{
 
     public $list;
 
-    public function __construct($list) {
+    public function __construct($list)
+    {
         $this->list = $list;
     }
 
-    public function dump() {
+    public function dump()
+    {
         for ($i = 0; $i < count($this->list); $i++) {
             $this->list[$i]->dump();
             if ($i < count($this->list) - 1)
@@ -504,7 +533,8 @@ class Body {
 
 }
 
-function varNames($list) {
+function varNames($list)
+{
     $out = array();
 
     foreach ($list as $item) {
@@ -524,7 +554,8 @@ function varNames($list) {
 }
 
 // The main proving engine. Returns: null (keep going), other (drop out)
-function prove($goalList, $environment, $db, $level, $reportFunction) {
+function prove($goalList, $environment, $db, $level, $reportFunction)
+{
 
     //DEBUG: print ("in main prove...\n");
     if (count($goalList) == 0) {
@@ -543,20 +574,21 @@ function prove($goalList, $environment, $db, $level, $reportFunction) {
     $thisTerm = $goalList[0];
     //print ("Debug: thisterm = "); thisTerm.print(); print("\n");
     // Do we have a builtin?
-/*    $builtin = $db['builtin'][$thisTerm->name . "/" . count($thisTerm->partlist->list)];
-    // print ("Debug: searching for builtin "+thisTerm.name+"/"+thisTerm.partlist.list.length+"\n");
-    if ($builtin) {
-        //print ("builtin with name " + thisTerm.name + " found; calling prove() on it...\n");
-        // Stick the new body list
-        $newGoals = array();
-        for ($j = 1; $j < count($goalList); $j++)
-            $newGoals[$j - 1] = $goalList[$j];
-        return $builtin($thisTerm, $newGoals, $environment, $db, $level + 1, $reportFunction);
-    }
-*/
+    /*    $builtin = $db['builtin'][$thisTerm->name . "/" . count($thisTerm->partlist->list)];
+      // print ("Debug: searching for builtin "+thisTerm.name+"/"+thisTerm.partlist.list.length+"\n");
+      if ($builtin) {
+      //print ("builtin with name " + thisTerm.name + " found; calling prove() on it...\n");
+      // Stick the new body list
+      $newGoals = array();
+      for ($j = 1; $j < count($goalList); $j++)
+      $newGoals[$j - 1] = $goalList[$j];
+      return $builtin($thisTerm, $newGoals, $environment, $db, $level + 1, $reportFunction);
+      }
+     */
     foreach ($db as $i => $item) {
-        if ($i === 'builtin') continue;
-        
+        if ($i === 'builtin')
+            continue;
+
         //print ("Debug: in rule selection. thisTerm = "); thisTerm.print(); print ("\n");
         if ($thisTerm->excludeRule === $i) {
             // print("DEBUG: excluding rule number $i in attempt to satisfy "); $thisTerm->dump(); print("\n");
@@ -569,7 +601,7 @@ function prove($goalList, $environment, $db, $level, $reportFunction) {
         // rule matching ... later.
         if ($rule->head->name != $thisTerm->name)
             continue;
-        
+
         // Rename the variables in the head and body
         $renamedHead = new Term($rule->head->name, renameVariables($rule->head->partlist->list, $level, $thisTerm));
         // renamedHead.ruleNumber = i;
@@ -614,6 +646,37 @@ function prove($goalList, $environment, $db, $level, $reportFunction) {
     }
 
     return null;
+}
+
+// Unify two terms in the current environment. Returns a new environment.
+// On failure, returns null.
+function unify($x, $y, $env)
+{
+    $x = value($x, $env);
+    $y = value($y, $env);
+    if ($x->type == "Variable")
+        return newEnv($x->name, $y, $env);
+    if ($y->type == "Variable")
+        return newEnv($y->name, $x, $env);
+    if ($x->type == "Atom" || $y->type == "Atom")
+        if ($x->type == $y->type && $x->name == $y->name)
+            return $env;
+        else
+            return null;
+
+    // x.type == y.type == Term...
+    if ($x->name != $y->name)
+        return null; // Ooh, so first-order.
+    if (count($x->partlist->list) != count($y->partlist->list))
+        return null;
+
+    for ($i = 0; $i < count($x->partlist->list); $i++) {
+        $env = unify($x->partlist->list[$i], $y->partlist->list[$i], $env);
+        if ($env == null)
+            return null;
+    }
+
+    return $env;
 }
 
 $rules = <<<BOZ
