@@ -966,6 +966,7 @@ function printVars($which, $environment)
          * TODO
          * - renumber en property sur un tableau
          * - External à finir sur la RegExp
+         * - manque un use dans BagOfCollectFunction
          */
 
 $rules = <<<BOZ
