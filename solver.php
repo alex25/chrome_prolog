@@ -55,7 +55,7 @@ function execute($rules, $query)
 
     $vs = array_values(varNames($q->list));
 
-    //renameVariables($q->list, 0, array());
+    //print_r(renameVariables($q->list, 0, array()));
     // Prove the query.
     prove(renameVariables($q->list, 0, array()), array(), $outr, 1, applyOne('printVars', $vs));
 }
@@ -97,7 +97,7 @@ function renameVariables($list, $level, $parent)
 // Functional programming bits... Currying and suchlike
 function applyOne($f, $arg1)
 {
-    return function ($arg2) {
+    return function ($arg2) use ($f, $arg1) {
                 return $f($arg1, $arg2);
             };
 }
@@ -244,7 +244,6 @@ function ParsePart($tk)
         }
 
         // Find the end of the list ... "| Var ]" or "]".
-        $append;
         if ($tk->current == "|") {
             $tk->consume();
             if ($tk->type != "var")
@@ -556,7 +555,6 @@ function varNames($list)
 // The main proving engine. Returns: null (keep going), other (drop out)
 function prove($goalList, $environment, $db, $level, $reportFunction)
 {
-
     //DEBUG: print ("in main prove...\n");
     if (count($goalList) == 0) {
         call_user_func($reportFunction, $environment);
@@ -607,7 +605,7 @@ function prove($goalList, $environment, $db, $level, $reportFunction)
         // renamedHead.ruleNumber = i;
 
         $env2 = unify($thisTerm, $renamedHead, $environment);
-        if ($env2 == null)
+        if ($env2 === null)
             continue;
 
         $body = $rule->body;
@@ -627,7 +625,7 @@ function prove($goalList, $environment, $db, $level, $reportFunction)
                 return $ret;
         } else {
             // Just prove the rest of the goallist, recursively.
-            $newGoals = aray();
+            $newGoals = array();
             for ($j = 1; $j < count($goalList); $j++)
                 $newGoals[$j - 1] = $goalList[$j];
             $ret = prove($newGoals, $env2, $db, $level + 1, $reportFunction);
@@ -658,12 +656,13 @@ function unify($x, $y, $env)
         return newEnv($x->name, $y, $env);
     if ($y->type == "Variable")
         return newEnv($y->name, $x, $env);
-    if ($x->type == "Atom" || $y->type == "Atom")
-        if ($x->type == $y->type && $x->name == $y->name)
+    if (($x->type == "Atom") || ($y->type == "Atom")) {
+        if (($x->type == $y->type) && ($x->name == $y->name)) {
             return $env;
-        else
+        } else {
             return null;
-
+        }
+    }
     // x.type == y.type == Term...
     if ($x->name != $y->name)
         return null; // Ooh, so first-order.
@@ -672,11 +671,62 @@ function unify($x, $y, $env)
 
     for ($i = 0; $i < count($x->partlist->list); $i++) {
         $env = unify($x->partlist->list[$i], $y->partlist->list[$i], $env);
-        if ($env == null)
+        if ($env === null)
             return null;
     }
 
     return $env;
+}
+
+// The value of x in a given environment
+function value($x, $env)
+{
+    if ($x->type == "Term") {
+        $l = array();
+        for ($i = 0; $i < count($x->partlist->list); $i++) {
+            $l[$i] = value($x->partlist->list[$i], $env);
+        }
+        return new Term($x->name, $l);
+    }
+    if ($x->type != "Variable")
+        return $x;  // We only need to check the values of variables...
+    $binding = $env[$x->name];
+
+    if ($binding == null)
+        return $x;  // Just the variable, no binding.
+    return value($binding, $env);
+}
+
+// Give a new environment from the old with "n" (a string variable name) bound to "z" (a part)
+// Part is Atom|Term|Variable
+function newEnv($n, $z, $e)
+{
+    // We assume that n has been 'unwound' or 'followed' as far as possible
+    // in the environment. If this is not the case, we could get an alias loop.
+    $ne = array();
+    $ne[$n] = $z;
+    foreach ($e as $i => $val)
+        if ($i != $n)
+            $ne[$i] = $e[$i];
+
+    return $ne;
+}
+
+function printVars($which, $environment)
+{
+    // Print bindings.
+    if (count($which) == 0) {
+        echo ("true\n");
+    } else {
+        for ($i = 0; $i < count($which); $i++) {
+            echo ($which[$i]->name);
+            echo (" = ");
+            $obj = value(new Variable($which[$i]->name . ".0"), $environment);
+            $obj->dump();
+            echo ("\n");
+        }
+    }
+    echo ("\n");
 }
 
 $rules = <<<BOZ
