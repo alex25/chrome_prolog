@@ -877,19 +877,19 @@ function BagOf($thisTerm, $goalList, $environment, $db, $level, $reportFunction)
 // Aux function: return the reportFunction to use with a bagof subgoal
 function BagOfCollectFunction($collect, $anslist)
 {
-    return function($env) {
-    /*
-      print("DEBUG: solution in bagof/3 found...\n");
-      print("Value of collection term ");
-      collect.print();
-      print(" in this environment = ");
-      (value(collect, env)).print();
-      print("\n");
-      printEnv(env);
-     */
-    // Rename this appropriately and throw it into anslist
-    $anslist[count($anslist)] = renameVariables(value($collect, $env), $anslist->renumber--, array());
-    }
+    return function($env) use ($collect, $anslist) {
+                /*
+                  print("DEBUG: solution in bagof/3 found...\n");
+                  print("Value of collection term ");
+                  collect.print();
+                  print(" in this environment = ");
+                  (value(collect, env)).print();
+                  print("\n");
+                  printEnv(env);
+                 */
+                // Rename this appropriately and throw it into anslist
+                $anslist[count($anslist)] = renameVariables(value($collect, $env), $anslist->renumber--, array());
+            };
 }
 
 // Call out to external javascript
