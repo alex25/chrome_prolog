@@ -5,10 +5,8 @@
  * and open the template in the editor.
  */
 
-function execute($rules, $query)
+function execute($rules, $query, $show = false)
 {
-
-    $show = true;
 
     echo ("Parsing rulesets.\n");
 
@@ -588,7 +586,7 @@ function prove($goalList, $environment, $db, $level, $reportFunction)
             continue;
 
         //print ("Debug: in rule selection. thisTerm = "); thisTerm.print(); print ("\n");
-        if ($thisTerm->excludeRule === $i) {
+        if (property_exists($thisTerm, 'excludeRule') && $thisTerm->excludeRule === $i) {
             // print("DEBUG: excluding rule number $i in attempt to satisfy "); $thisTerm->dump(); print("\n");
             continue;
         }
@@ -690,7 +688,10 @@ function value($x, $env)
     }
     if ($x->type != "Variable")
         return $x;  // We only need to check the values of variables...
-    $binding = $env[$x->name];
+
+    $binding = null;
+    if (array_key_exists($x->name, $env))
+        $binding = $env[$x->name];
 
     if ($binding == null)
         return $x;  // Just the variable, no binding.
@@ -928,7 +929,7 @@ function External($thisTerm, $goalList, $environment, $db, $level, $reportFuncti
         $second = $second->partlist->list[1];
         $i++;
     }
-    if (second . type != "Atom" || second . name != "nil") {
+    if ($second->type != "Atom" || $second->name != "nil") {
         //print("DEBUG: External/3 needs second to be a list, not "); second.print(); print("\n");
         return null;
     }
