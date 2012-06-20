@@ -1019,8 +1019,14 @@ not(Term).
 var(X) :- bagof(l, varTest(X), [l, l]).
 varTest(a).
 tarTest(b).
+
+factorial(1, 0).
+factorial(N, X) :- compare(N, 0, gt), sub(N, 1, N1), factorial(N1, P), mul(N, P, X).
+
+
 BOZ;
 $query = "bagof(c, triple(sc, A, B), L), length(L, N) # L should have 21 elements";
+$query = "factorial(6)";
 
 execute($rules, $query)
 ?>
