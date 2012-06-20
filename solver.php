@@ -729,246 +729,238 @@ function printVars($which, $environment)
     echo ("\n");
 }
 
+// A sample builtin function, including all the bits you need to get it to work
+// within the general proving mechanism.
+// compare(First, Second, CmpValue)
+// First, Second must be bound to strings here.
+// CmpValue is bound to -1, 0, 1
+function Comparitor($thisTerm, $goalList, $environment, $db, $level, $reportFunction)
+{
+    //DEBUG print ("in Comparitor.prove()...\n");
+    // Prove the builtin bit, then break out and prove
+    // the remaining goalList.
+    // if we were intending to have a resumable builtin (one that can return
+    // multiple bindings) then we'd wrap all of this in a while() loop.
+    // Rename the variables in the head and body
+    // var renamedHead = new Term(rule.head.name, renameVariables(rule.head.partlist.list, level));
 
-	// A sample builtin function, including all the bits you need to get it to work
-	// within the general proving mechanism.
+    $first = value($thisTerm->partlist->list[0], $environment);
+    if ($first->type != "Atom") {
+        //print("Debug: Comparitor needs First bound to an Atom, failing\n");
+        return null;
+    }
 
-	// compare(First, Second, CmpValue)
-	// First, Second must be bound to strings here.
-	// CmpValue is bound to -1, 0, 1
-	function Comparitor($thisTerm, $goalList, $environment, $db, $level, $reportFunction) {
-		//DEBUG print ("in Comparitor.prove()...\n");
-		// Prove the builtin bit, then break out and prove
-		// the remaining goalList.
+    $second = value($thisTerm->partlist->list[1], $environment);
+    if ($second->type != "Atom") {
+        //print("Debug: Comparitor needs Second bound to an Atom, failing\n");
+        return null;
+    }
 
-		// if we were intending to have a resumable builtin (one that can return
-		// multiple bindings) then we'd wrap all of this in a while() loop.
+    $cmp = "eq";
+    if ($first->name < $second->name)
+        $cmp = "lt";
+    else if ($first->name > $second->name)
+        $cmp = "gt";
 
-		// Rename the variables in the head and body
-		// var renamedHead = new Term(rule.head.name, renameVariables(rule.head.partlist.list, level));
+    $env2 = unify($thisTerm->partlist->list[2], new Atom($cmp), $environment);
 
-		$first = value($thisTerm->partlist->list[0], $environment);
-		if ($first->type != "Atom") {
-			//print("Debug: Comparitor needs First bound to an Atom, failing\n");
-			return null;
-		}
+    if ($env2 == null) {
+        //print("Debug: Comparitor cannot unify CmpValue with " + cmp + ", failing\n");
+        return null;
+    }
 
-		$second = value($thisTerm->partlist->list[1], $environment);
-		if ($second->type != "Atom") {
-			//print("Debug: Comparitor needs Second bound to an Atom, failing\n");
-			return null;
-		}
+    // Just prove the rest of the goallist, recursively.
+    return prove($goalList, $env2, $db, $level + 1, $reportFunction);
+}
 
-		$cmp = "eq";
-		if ($first->name < $second->name) $cmp = "lt";
-		else if ($first->name > $second->name) $cmp = "gt";
+function Cut($thisTerm, $goalList, $environment, $db, $level, $reportFunction)
+{
+    //DEBUG print ("in Comparitor.prove()...\n");
+    // Prove the builtin bit, then break out and prove
+    // the remaining goalList.
+    // if we were intending to have a resumable builtin (one that can return
+    // multiple bindings) then we'd wrap all of this in a while() loop.
+    // Rename the variables in the head and body
+    // var renamedHead = new Term(rule.head.name, renameVariables(rule.head.partlist.list, level));
+    // On the way through, we do nothing...
+    // Just prove the rest of the goallist, recursively.
+    $ret = prove($goalList, $environment, $db, $level + 1, $reportFunction);
 
-		$env2 = unify($thisTerm->partlist->list[2], new Atom($cmp), $environment);
+    // Backtracking through the 'cut' stops any further attempts to prove this subgoal.
+    //print ("Debug: backtracking through cut/0: thisTerm.parent = "); thisTerm.parent.print(); print("\n");
+    $thisTerm->parent->cut = true;
 
-		if ($env2 == null) {
-			//print("Debug: Comparitor cannot unify CmpValue with " + cmp + ", failing\n");
-			return null;
-		}
+    return $ret;
+}
 
-		// Just prove the rest of the goallist, recursively.
-		return prove($goalList, $env2, $db, $level+1, $reportFunction);
-	}
+// Given a single argument, it sticks it on the goal list.
+function Call($thisTerm, $goalList, $environment, $db, $level, $reportFunction)
+{
+    // Prove the builtin bit, then break out and prove
+    // the remaining goalList.
+    // Rename the variables in the head and body
+    // var renamedHead = new Term(rule.head.name, renameVariables(rule.head.partlist.list, level));
 
-	function Cut($thisTerm, $goalList, $environment, $db, $level, $reportFunction) {
-		//DEBUG print ("in Comparitor.prove()...\n");
-		// Prove the builtin bit, then break out and prove
-		// the remaining goalList.
+    $first = value($thisTerm->partlist->list[0], $environment);
+    if ($first->type != "Term") {
+        //print("Debug: Call needs parameter bound to a Term, failing\n");
+        return null;
+    }
 
-		// if we were intending to have a resumable builtin (one that can return
-		// multiple bindings) then we'd wrap all of this in a while() loop.
+    //var newGoal = new Term(first.name, renameVariables(first.partlist.list, level, thisTerm));
+    //newGoal.parent = thisTerm;
+    // Stick this as a new goal on the start of the goallist
+    $newGoals = array();
+    $newGoals[0] = $first;
+    $first->parent = $thisTerm;
 
-		// Rename the variables in the head and body
-		// var renamedHead = new Term(rule.head.name, renameVariables(rule.head.partlist.list, level));
+    for ($j = 0; $j < count($goalList); $j++)
+        $newGoals[$j + 1] = $goalList[$j];
 
-		// On the way through, we do nothing...
+    // Just prove the rest of the goallist, recursively.
+    return prove($newGoals, $environment, $db, $level + 1, $reportFunction);
+}
 
-		// Just prove the rest of the goallist, recursively.
-		$ret = prove($goalList, $environment, $db, $level+1, $reportFunction);
+function Fail($thisTerm, $goalList, $environment, $db, $level, $reportFunction)
+{
+    return null;
+}
 
-		// Backtracking through the 'cut' stops any further attempts to prove this subgoal.
-		//print ("Debug: backtracking through cut/0: thisTerm.parent = "); thisTerm.parent.print(); print("\n");
-		$thisTerm->parent->cut = true;
+function BagOf($thisTerm, $goalList, $environment, $db, $level, $reportFunction)
+{
+    // bagof(Term, ConditionTerm, ReturnList)
 
-		return $ret;
-	}
+    $collect = value($thisTerm->partlist->list[0], $environment);
+    $subgoal = value($thisTerm->partlist->list[1], $environment);
+    $into = value($thisTerm->partlist->list[2], $environment);
 
-	// Given a single argument, it sticks it on the goal list.
-	function Call($thisTerm, $goalList, $environment, $db, $level, $reportFunction) {
-		// Prove the builtin bit, then break out and prove
-		// the remaining goalList.
+    $collect = renameVariables($collect, $level, $thisTerm);
+    $newGoal = new Term($subgoal->name, renameVariables($subgoal->partlist->list, $level, $thisTerm));
+    $newGoal->parent = $thisTerm;
 
-		// Rename the variables in the head and body
-		// var renamedHead = new Term(rule.head.name, renameVariables(rule.head.partlist.list, level));
+    $newGoals = array();
+    $newGoals[0] = $newGoal;
 
-		$first = value($thisTerm->partlist->list[0], $environment);
-		if ($first->type != "Term") {
-			//print("Debug: Call needs parameter bound to a Term, failing\n");
-			return null;
-		}
+    // Prove this subgoal, collecting up the environments...
+    $anslist = array();
+    $anslist->renumber = -1;
+    $ret = prove($newGoals, $environment, $db, $level + 1, BagOfCollectFunction($collect, $anslist));
 
-		//var newGoal = new Term(first.name, renameVariables(first.partlist.list, level, thisTerm));
-		//newGoal.parent = thisTerm;
+    // Turn anslist into a proper list and unify with 'into'
+    // optional here: nil anslist -> fail?
+    $answers = new Atom("nil");
 
-		// Stick this as a new goal on the start of the goallist
-		$newGoals = array();
-		$newGoals[0] = $first;
-		$first->parent = $thisTerm;
+    /*
+      print("Debug: anslist = [");
+      for (var j = 0; j < anslist.length; j++) {
+      anslist[j].print();
+      print(", ");
+      }
+      print("]\n");
+     */
 
-		for ($j=0; $j<count($goalList); $j++) $newGoals[$j+1] = $goalList[$j];
+    for ($i = count($anslist); $i > 0; $i--)
+        $answers = new Term("cons", array($anslist[$i - 1], $answers));
 
-		// Just prove the rest of the goallist, recursively.
-		return prove($newGoals, $environment, $db, $level+1, $reportFunction);
-	}
+    //print("Debug: unifying "); into.print(); print(" with "); answers.print(); print("\n");
+    $env2 = unify($into, $answers, $environment);
 
-	function Fail($thisTerm, $goalList, $environment, $db, $level, $reportFunction) {
-		return null;
-	}
+    if ($env2 == null) {
+        //print("Debug: bagof cannot unify anslist with "); into.print(); print(", failing\n");
+        return null;
+    }
 
-	function BagOf($thisTerm, $goalList, $environment, $db, $level, $reportFunction) {
-		// bagof(Term, ConditionTerm, ReturnList)
+    // Just prove the rest of the goallist, recursively.
+    return prove($goalList, $env2, $db, $level + 1, $reportFunction);
+}
 
-		$collect = value($thisTerm->partlist->list[0], $environment);
-		$subgoal = value($thisTerm->partlist->list[1], $environment);
-		$into = value($thisTerm->partlist->list[2], $environment);
+// Aux function: return the reportFunction to use with a bagof subgoal
+function BagOfCollectFunction($collect, $anslist)
+{
+    return function($env) {
+    /*
+      print("DEBUG: solution in bagof/3 found...\n");
+      print("Value of collection term ");
+      collect.print();
+      print(" in this environment = ");
+      (value(collect, env)).print();
+      print("\n");
+      printEnv(env);
+     */
+    // Rename this appropriately and throw it into anslist
+    $anslist[count($anslist)] = renameVariables(value($collect, $env), $anslist->renumber--, array());
+    }
+}
 
-		$collect = renameVariables($collect, $level, $thisTerm);
-		$newGoal = new Term($subgoal->name, renameVariables($subgoal->partlist->list, $level, $thisTerm));
-		$newGoal->parent = $thisTerm;
+// Call out to external javascript
+// external/3 takes three arguments:
+// first: a template string that uses $1, $2, etc. as placeholders for
 
-		$newGoals = array();
-		$newGoals[0] = $newGoal;
+function External($thisTerm, $goalList, $environment, $db, $level, $reportFunction)
+{
+    //print ("DEBUG: in External...\n");
+    // Get the first term, the template.
+    $first = value($thisTerm->partlist->list[0], $environment);
+    if ($first->type != "Atom") {
+        //print("Debug: External needs First bound to a string Atom, failing\n");
+        return null;
+    }
 
-		// Prove this subgoal, collecting up the environments...
-		$anslist = array();
-		$anslist->renumber = -1;
-		$ret = prove($newGoals, $environment, $db, $level+1, BagOfCollectFunction($collect, $anslist));
+    if (!preg_match('#^"(.*)"$#', $first->name, $r))
+        return null;
+    $r = $r[1];
 
-		// Turn anslist into a proper list and unify with 'into'
-
-		// optional here: nil anslist -> fail?
-		$answers = new Atom("nil");
-
-		/*
-		print("Debug: anslist = [");
-			for (var j = 0; j < anslist.length; j++) {
-				anslist[j].print();
-				print(", ");
-			}
-		print("]\n");
-		*/
-
-		for ($i = count($anslist); $i > 0; $i--)
-			$answers = new Term("cons", array($anslist[$i-1], $answers));
-
-		//print("Debug: unifying "); into.print(); print(" with "); answers.print(); print("\n");
-		$env2 = unify($into, $answers, $environment);
-
-		if ($env2 == null) {
-			//print("Debug: bagof cannot unify anslist with "); into.print(); print(", failing\n");
-			return null;
-		}
-
-		// Just prove the rest of the goallist, recursively.
-		return prove($goalList, $env2, $db, $level+1, $reportFunction);
-	}
-
-	// Aux function: return the reportFunction to use with a bagof subgoal
-	function BagOfCollectFunction($collect, $anslist) {
-		return function($env) {
-			/*
-			print("DEBUG: solution in bagof/3 found...\n");
-			print("Value of collection term ");
-			collect.print();
-			print(" in this environment = ");
-			(value(collect, env)).print();
-			print("\n");
-			printEnv(env);
-			*/
-			// Rename this appropriately and throw it into anslist
-			$anslist[count($anslist)] = renameVariables(value($collect, $env), $anslist->renumber--, array());
-		}
-	}
-
-	// Call out to external javascript
-	// external/3 takes three arguments:
-	// first: a template string that uses $1, $2, etc. as placeholders for
-	$EvalContext = array();
-
-	function External($thisTerm, $goalList, $environment, $db, $level, $reportFunction) {
-		//print ("DEBUG: in External...\n");
-
-		// Get the first term, the template.
-		$first = value($thisTerm->partlist->list[0], $environment);
-		if ($first->type != "Atom") {
-			//print("Debug: External needs First bound to a string Atom, failing\n");
-			return null;
-		}
-
-		if (!preg_match('#^"(.*)"$#', $first->name, $r)) return null;
-		$r = $r[1];
-
-		//print("DEBUG: template for External/3 is "+r+"\n");
-
-		// Get the second term, the argument list.
-		$second = value($thisTerm->partlist->list[1], $environment);
-		$arglist = array();
-                $i = 1;
-		while (($second->type == "Term") && ($second->name == "cons")) {
-			// Go through second an argument at a time...
-			$arg = value($second->partlist->list[0], $environment);
-			if ($arg->type != "Atom") {
-				//print("DEBUG: External/3: argument "+i+" must be an Atom, not "); arg.print(); print("\n");
-				return null;
-			}
-			$re = new RegExp("\\$"+i, "g");
-			//print("DEBUG: External/3: RegExp is "+re+", arg is "+arg.name+"\n");
-			r = r.replace(re, arg.name);
-			//print("DEBUG: External/3: r becomes "+r+"\n");
-			second = second.partlist.list[1];
-			i++;
-		}
-		if (second.type != "Atom" || second.name != "nil") {
-			//print("DEBUG: External/3 needs second to be a list, not "); second.print(); print("\n");
-			return null;
-		}
-
-		//print("DEBUG: External/3 about to eval \""+r+"\"\n");
-
-		var ret;
-        try {
-            with(EvalContext)
-                ret = eval(r);
-        } catch(exc) {
-            print('Cannot evaluate ' + r + "\n")
-            ret = 'nil'
+    //print("DEBUG: template for External/3 is "+r+"\n");
+    // Get the second term, the argument list.
+    $second = value($thisTerm->partlist->list[1], $environment);
+    $arglist = array();
+    $i = 1;
+    while (($second->type == "Term") && ($second->name == "cons")) {
+        // Go through second an argument at a time...
+        $arg = value($second->partlist->list[0], $environment);
+        if ($arg->type != "Atom") {
+            //print("DEBUG: External/3: argument "+i+" must be an Atom, not "); arg.print(); print("\n");
+            return null;
         }
+        $r = str_replace('$' . $i, $arg->name, $r);
+        //print("DEBUG: External/3: RegExp is "+re+", arg is "+arg.name+"\n");
+        //print("DEBUG: External/3: r becomes "+r+"\n");
+        $second = $second->partlist->list[1];
+        $i++;
+    }
+    if (second . type != "Atom" || second . name != "nil") {
+        //print("DEBUG: External/3 needs second to be a list, not "); second.print(); print("\n");
+        return null;
+    }
 
-		//print("DEBUG: External/3 got "+ret+" back\n");
+    //print("DEBUG: External/3 about to eval \""+r+"\"\n");
 
-		// Convert back into an atom...
-		var env2 = unify(thisTerm.partlist.list[2], new Atom(ret), environment);
+    $ret = null;
+    $checkEval = eval('$ret = ' . $r . ';');
+    if (false === $checkEval) {
+        echo 'Cannot evaluate ' . $r . + "\n";
+        $ret = 'nil';
+    }
 
-		if (env2 == null) {
-			//print("Debug: External/3 cannot unify OutValue with " + ret + ", failing\n");
-			return null;
-		}
+    //print("DEBUG: External/3 got "+ret+" back\n");
+    // Convert back into an atom...
+    $env2 = unify($thisTerm->partlist->list[2], new Atom($ret), $environment);
 
-		// Just prove the rest of the goallist, recursively.
-		return prove(goalList, env2, db, level+1, reportFunction);
-	}
+    if ($env2 == null) {
+        //print("Debug: External/3 cannot unify OutValue with " + ret + ", failing\n");
+        return null;
+    }
 
-        /**
-         * TODO
-         * - renumber en property sur un tableau
-         * - External à finir sur la RegExp
-         * - manque un use dans BagOfCollectFunction
-         */
+    // Just prove the rest of the goallist, recursively.
+    return prove($goalList, $env2, $db, $level + 1, $reportFunction);
+}
 
+/**
+ * TODO
+ * - renumber en property sur un tableau
+ * - External à finir sur la RegExp
+ * - manque un use dans BagOfCollectFunction
+ */
 $rules = <<<BOZ
 triple(sc, a, b).
 triple(sc, b, c).
