@@ -843,7 +843,7 @@ function BagOf($thisTerm, $goalList, $environment, $db, $level, $reportFunction)
     $newGoals[0] = $newGoal;
 
     // Prove this subgoal, collecting up the environments...
-    $anslist = array();
+    $anslist->list = array();
     $anslist->renumber = -1;
     $ret = prove($newGoals, $environment, $db, $level + 1, BagOfCollectFunction($collect, $anslist));
 
@@ -860,8 +860,8 @@ function BagOf($thisTerm, $goalList, $environment, $db, $level, $reportFunction)
       print("]\n");
      */
 
-    for ($i = count($anslist); $i > 0; $i--)
-        $answers = new Term("cons", array($anslist[$i - 1], $answers));
+    for ($i = count($anslist->list); $i > 0; $i--)
+        $answers = new Term("cons", array($anslist->list[$i - 1], $answers));
 
     //print("Debug: unifying "); into.print(); print(" with "); answers.print(); print("\n");
     $env2 = unify($into, $answers, $environment);
@@ -889,7 +889,7 @@ function BagOfCollectFunction($collect, $anslist)
                   printEnv(env);
                  */
                 // Rename this appropriately and throw it into anslist
-                $anslist[count($anslist)] = renameVariables(value($collect, $env), $anslist->renumber--, array());
+                $anslist->list[count($anslist->list)] = renameVariables(value($collect, $env), $anslist->renumber--, array());
             };
 }
 
@@ -956,12 +956,6 @@ function External($thisTerm, $goalList, $environment, $db, $level, $reportFuncti
     return prove($goalList, $env2, $db, $level + 1, $reportFunction);
 }
 
-/**
- * TODO
- * - renumber en property sur un tableau
- * - External à finir sur la RegExp
- * - manque un use dans BagOfCollectFunction
- */
 $rules = <<<BOZ
 triple(sc, a, b).
 triple(sc, b, c).
