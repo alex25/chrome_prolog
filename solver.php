@@ -1027,6 +1027,8 @@ factorial(N, X) :- compare(N, 0, gt), sub(N, 1, N1), factorial(N1, P), mul(N, P,
 BOZ;
 $query = "bagof(c, triple(sc, A, B), L), length(L, N) # L should have 21 elements";
 $query = "factorial(6, X) # should return 720";
+$query = "qsort([5,3,2,111,8,9,7], X)";
+$query = "leq(33, 7)";
 
 execute($rules, $query)
 ?>
