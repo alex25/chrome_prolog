@@ -570,9 +570,10 @@ function prove($goalList, $environment, $db, $level, $reportFunction)
     $thisTerm = $goalList[0];
     //print ("Debug: thisterm = "); thisTerm.print(); print("\n");
     // Do we have a builtin?
-    $builtin = $db['builtin'][$thisTerm->name . "/" . count($thisTerm->partlist->list)];
+    $signature = $thisTerm->name . "/" . count($thisTerm->partlist->list);
     // print ("Debug: searching for builtin "+thisTerm.name+"/"+thisTerm.partlist.list.length+"\n");
-    if ($builtin) {
+    if (array_key_exists($signature, $db['builtin'])) {
+        $builtin = $db['builtin'][$signature];
         //print ("builtin with name " + thisTerm.name + " found; calling prove() on it...\n");
         // Stick the new body list
         $newGoals = array();
