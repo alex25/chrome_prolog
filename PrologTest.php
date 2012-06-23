@@ -23,7 +23,8 @@ class PrologTest extends PHPUnit_Framework_TestCase {
      * @dataProvider queryProvider
      */
     public function testQuery($db, $query, $check, $val) {
-        execute($db, $query);
+        $result = execute($db, $query);
+        $this->assertEquals($val, $result->$check);
     }
 
 }

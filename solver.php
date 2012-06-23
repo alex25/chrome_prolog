@@ -56,6 +56,7 @@ function execute($rules, $query, $show = false) {
     // Prove the query.
     prove(renameVariables($q->list, 0, array()), array(), $outr, 1, applyOne(array($pile, 'log'), $vs));
     $pile->dump();
+    return $pile;
 }
 
 // Go through a list of terms (ie, a Body or Partlist's list) renaming variables
@@ -932,6 +933,10 @@ class ReportStack {
 
     public function dump() {
         print_r($this->stack);
+    }
+    
+    public function __get($name) {
+        return $this->stack[$name];
     }
 
 }
