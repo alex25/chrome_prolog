@@ -922,15 +922,10 @@ class ReportStack {
 
     public function log($which, $environment) {
         // Print bindings.
-        if (count($which) == 0) {
-            echo ("true\n");
-        } else {
+        if (count($which) != 0) {
             for ($i = 0; $i < count($which); $i++) {
-                echo ($which[$i]->name);
-                echo (" = ");
                 $obj = value(new Variable($which[$i]->name . ".0"), $environment);
-                $obj->dump();
-                echo ("\n");
+                $this->stack[$which[$i]->name] = $obj->name;
             }
         }
     }
