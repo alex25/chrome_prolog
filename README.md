@@ -7,8 +7,9 @@ to implement business intelligence with limited rules and predicates of Prolog.
 My first goal is to validate, debug (if necessary) and port this js to php : goal achieved
 
 Next goals :
-* remove all notice (lol)
-* make a service-like class
+* make a library : done
+* PhpUnit testing this library
+* remove all notice and some strange features (removing NOTTHIS for example)
 * namespacing the classes
 * refactor the model to be more PHP-like and not js-like (remove some weird object)
 * using getters and setters
