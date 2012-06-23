@@ -5,8 +5,7 @@
  * and open the template in the editor.
  */
 
-function execute($rules, $query, $show = false)
-{
+function execute($rules, $query, $show = false) {
 
     echo ("Parsing rulesets.\n");
 
@@ -52,18 +51,18 @@ function execute($rules, $query, $show = false)
     }
 
     $vs = array_values(varNames($q->list));
-
+    $pile = new ReportStack();
     //print_r(renameVariables($q->list, 0, array()));
     // Prove the query.
-    prove(renameVariables($q->list, 0, array()), array(), $outr, 1, applyOne('printVars', $vs));
+    prove(renameVariables($q->list, 0, array()), array(), $outr, 1, applyOne(array($pile, 'log'), $vs));
+    $pile->dump();
 }
 
 // Go through a list of terms (ie, a Body or Partlist's list) renaming variables
 // by appending 'level' to each variable name.
 // How non-graph-theoretical can this get?!?
 // "parent" points to the subgoal, the expansion of which lead to these terms.
-function renameVariables($list, $level, $parent)
-{
+function renameVariables($list, $level, $parent) {
     $out = array();
 
     if ($list instanceof Atom) {
@@ -93,15 +92,13 @@ function renameVariables($list, $level, $parent)
 }
 
 // Functional programming bits... Currying and suchlike
-function applyOne($f, $arg1)
-{
+function applyOne($f, $arg1) {
     return function ($arg2) use ($f, $arg1) {
-                return $f($arg1, $arg2);
+                return call_user_func_array($f, array($arg1, $arg2));
             };
 }
 
-function ParseRule($tk)
-{
+function ParseRule($tk) {
     // A rule is a Head followed by . or by :- Body
     $h = ParseHead($tk);
     if (!$h)
@@ -123,14 +120,12 @@ function ParseRule($tk)
     return new Rule($h, $b);
 }
 
-function ParseHead($tk)
-{
+function ParseHead($tk) {
     // A head is simply a term. (errors cascade back up)
     return ParseTerm($tk);
 }
 
-function ParseBody($tk)
-{
+function ParseBody($tk) {
     // Body -> Term {, Term...}
 
     $p = array();
@@ -148,8 +143,7 @@ function ParseBody($tk)
     return $p;
 }
 
-function ParseTerm($tk)
-{
+function ParseTerm($tk) {
     // Term -> [NOTTHIS] id ( optParamList )
 
     if ($tk->type == "punc" && $tk->current == "!") {
@@ -205,8 +199,7 @@ function ParseTerm($tk)
 }
 
 // This was a beautiful piece of code. It got kludged to add [a,b,c|Z] sugar.
-function ParsePart($tk)
-{
+function ParsePart($tk) {
     // Part -> var | id | id(optParamList)
     // Part -> [ listBit ] ::-> cons(...)
     if ($tk->type == "var") {
@@ -293,61 +286,52 @@ function ParsePart($tk)
     return new Term($name, $p);
 }
 
-class Atom
-{
+class Atom {
 
     public $name;
     public $type;
 
-    public function __construct($head)
-    {
+    public function __construct($head) {
         $this->name = $head;
         $this->type = "Atom";
     }
 
-    public function dump()
-    {
+    public function dump() {
         echo $this->name;
     }
 
 }
 
-class Variable
-{
+class Variable {
 
     public $name;
     public $type;
 
-    public function __construct($head)
-    {
+    public function __construct($head) {
         $this->name = $head;
         $this->type = "Variable";
     }
 
-    public function dump()
-    {
+    public function dump() {
         echo $this->name;
     }
 
 }
 
-class Tokeniser
-{
+class Tokeniser {
 
     public $remainder;
     public $current;
 
     // The Tiny-Prolog parser goes here.
-    public function __construct($string)
-    {
+    public function __construct($string) {
         $this->remainder = $string;
         $this->current = null;
         $this->type = null; // "eof", "id", "var", "punc" etc.
         $this->consume(); // Load up the first token.
     }
 
-    public function consume()
-    {
+    public function consume() {
         if ($this->type == "eof")
             return;
         // Eat any leading WS
@@ -411,22 +395,19 @@ class Tokeniser
 
 }
 
-class Term
-{
+class Term {
 
     public $name;
     public $type;
     public $partlist;
 
-    public function __construct($head, $list)
-    {
+    public function __construct($head, $list) {
         $this->name = $head;
         $this->partlist = new Partlist($list);
         $this->type = "Term";
     }
 
-    public function dump()
-    {
+    public function dump() {
         if ($this->name == "cons") {
             $x = $this;
             while ($x->type == "Term" && $x->name == "cons" && count($x->partlist->list) == 2) {
@@ -458,18 +439,15 @@ class Term
 
 }
 
-class Partlist
-{
+class Partlist {
 
     public $list;
 
-    public function __construct($list)
-    {
+    public function __construct($list) {
         $this->list = $list;
     }
 
-    public function dump()
-    {
+    public function dump() {
         for ($i = 0; $i < count($this->list); $i++) {
             $this->list[$i]->dump();
             if ($i < count($this->list) - 1)
@@ -479,14 +457,12 @@ class Partlist
 
 }
 
-class Rule
-{
+class Rule {
 
     public $head;
     public $body;
 
-    public function __construct($head, $bodylist = null)
-    {
+    public function __construct($head, $bodylist = null) {
         $this->head = $head;
         if ($bodylist != null)
             $this->body = new Body($bodylist);
@@ -494,8 +470,7 @@ class Rule
             $this->body = null;
     }
 
-    public function dump()
-    {
+    public function dump() {
         if ($this->body == null) {
             $this->head->dump();
             echo (".\n");
@@ -509,18 +484,15 @@ class Rule
 
 }
 
-class Body
-{
+class Body {
 
     public $list;
 
-    public function __construct($list)
-    {
+    public function __construct($list) {
         $this->list = $list;
     }
 
-    public function dump()
-    {
+    public function dump() {
         for ($i = 0; $i < count($this->list); $i++) {
             $this->list[$i]->dump();
             if ($i < count($this->list) - 1)
@@ -530,8 +502,7 @@ class Body
 
 }
 
-function varNames($list)
-{
+function varNames($list) {
     $out = array();
 
     foreach ($list as $item) {
@@ -551,8 +522,7 @@ function varNames($list)
 }
 
 // The main proving engine. Returns: null (keep going), other (drop out)
-function prove($goalList, $environment, $db, $level, $reportFunction)
-{
+function prove($goalList, $environment, $db, $level, $reportFunction) {
     //DEBUG: print ("in main prove...\n");
     if (count($goalList) == 0) {
         call_user_func($reportFunction, $environment);
@@ -647,8 +617,7 @@ function prove($goalList, $environment, $db, $level, $reportFunction)
 
 // Unify two terms in the current environment. Returns a new environment.
 // On failure, returns null.
-function unify($x, $y, $env)
-{
+function unify($x, $y, $env) {
     $x = value($x, $env);
     $y = value($y, $env);
     if ($x->type == "Variable")
@@ -678,8 +647,7 @@ function unify($x, $y, $env)
 }
 
 // The value of x in a given environment
-function value($x, $env)
-{
+function value($x, $env) {
     if ($x->type == "Term") {
         $l = array();
         for ($i = 0; $i < count($x->partlist->list); $i++) {
@@ -701,8 +669,7 @@ function value($x, $env)
 
 // Give a new environment from the old with "n" (a string variable name) bound to "z" (a part)
 // Part is Atom|Term|Variable
-function newEnv($n, $z, $e)
-{
+function newEnv($n, $z, $e) {
     // We assume that n has been 'unwound' or 'followed' as far as possible
     // in the environment. If this is not the case, we could get an alias loop.
     $ne = array();
@@ -714,8 +681,7 @@ function newEnv($n, $z, $e)
     return $ne;
 }
 
-function printVars($which, $environment)
-{
+function printVars($which, $environment) {
     // Print bindings.
     if (count($which) == 0) {
         echo ("true\n");
@@ -736,8 +702,7 @@ function printVars($which, $environment)
 // compare(First, Second, CmpValue)
 // First, Second must be bound to strings here.
 // CmpValue is bound to -1, 0, 1
-function Comparitor($thisTerm, $goalList, $environment, $db, $level, $reportFunction)
-{
+function Comparitor($thisTerm, $goalList, $environment, $db, $level, $reportFunction) {
     //DEBUG print ("in Comparitor.prove()...\n");
     // Prove the builtin bit, then break out and prove
     // the remaining goalList.
@@ -775,8 +740,7 @@ function Comparitor($thisTerm, $goalList, $environment, $db, $level, $reportFunc
     return prove($goalList, $env2, $db, $level + 1, $reportFunction);
 }
 
-function Cut($thisTerm, $goalList, $environment, $db, $level, $reportFunction)
-{
+function Cut($thisTerm, $goalList, $environment, $db, $level, $reportFunction) {
     //DEBUG print ("in Comparitor.prove()...\n");
     // Prove the builtin bit, then break out and prove
     // the remaining goalList.
@@ -796,8 +760,7 @@ function Cut($thisTerm, $goalList, $environment, $db, $level, $reportFunction)
 }
 
 // Given a single argument, it sticks it on the goal list.
-function Call($thisTerm, $goalList, $environment, $db, $level, $reportFunction)
-{
+function Call($thisTerm, $goalList, $environment, $db, $level, $reportFunction) {
     // Prove the builtin bit, then break out and prove
     // the remaining goalList.
     // Rename the variables in the head and body
@@ -823,13 +786,11 @@ function Call($thisTerm, $goalList, $environment, $db, $level, $reportFunction)
     return prove($newGoals, $environment, $db, $level + 1, $reportFunction);
 }
 
-function Fail($thisTerm, $goalList, $environment, $db, $level, $reportFunction)
-{
+function Fail($thisTerm, $goalList, $environment, $db, $level, $reportFunction) {
     return null;
 }
 
-function BagOf($thisTerm, $goalList, $environment, $db, $level, $reportFunction)
-{
+function BagOf($thisTerm, $goalList, $environment, $db, $level, $reportFunction) {
     // bagof(Term, ConditionTerm, ReturnList)
 
     $collect = value($thisTerm->partlist->list[0], $environment);
@@ -877,8 +838,7 @@ function BagOf($thisTerm, $goalList, $environment, $db, $level, $reportFunction)
 }
 
 // Aux function: return the reportFunction to use with a bagof subgoal
-function BagOfCollectFunction($collect, $anslist)
-{
+function BagOfCollectFunction($collect, $anslist) {
     return function($env) use ($collect, $anslist) {
                 /*
                   print("DEBUG: solution in bagof/3 found...\n");
@@ -898,8 +858,7 @@ function BagOfCollectFunction($collect, $anslist)
 // external/3 takes three arguments:
 // first: a template string that uses $1, $2, etc. as placeholders for
 
-function External($thisTerm, $goalList, $environment, $db, $level, $reportFunction)
-{
+function External($thisTerm, $goalList, $environment, $db, $level, $reportFunction) {
     //print ("DEBUG: in External...\n");
     // Get the first term, the template.
     $first = value($thisTerm->partlist->list[0], $environment);
@@ -955,4 +914,29 @@ function External($thisTerm, $goalList, $environment, $db, $level, $reportFuncti
 
     // Just prove the rest of the goallist, recursively.
     return prove($goalList, $env2, $db, $level + 1, $reportFunction);
+}
+
+class ReportStack {
+
+    protected $stack = array();
+
+    public function log($which, $environment) {
+        // Print bindings.
+        if (count($which) == 0) {
+            echo ("true\n");
+        } else {
+            for ($i = 0; $i < count($which); $i++) {
+                echo ($which[$i]->name);
+                echo (" = ");
+                $obj = value(new Variable($which[$i]->name . ".0"), $environment);
+                $obj->dump();
+                echo ("\n");
+            }
+        }
+    }
+
+    public function dump() {
+        print_r($this->stack);
+    }
+
 }
