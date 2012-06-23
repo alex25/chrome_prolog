@@ -11,13 +11,18 @@ class PrologTest extends PHPUnit_Framework_TestCase {
 
     public function queryProvider() {
         $fixtures = file_get_contents('fixtures_test.pro');
-        return array(array($fixtures, 'bagof(c, triple(sc, A, B), L), length(L, N) # L should have 21 elements'));
+        return array(
+            array($fixtures, 'bagof(c, triple(sc, A, B), L), length(L, N)', 'N', 21),
+         /*   array($fixtures, 'bagof(c, triple(sc, A, B), L), length(L, N) # L should have 21 elements'),
+            array($fixtures, 'bagof(c, triple(sc, A, B), L), length(L, N) # L should have 21 elements'),
+            array($fixtures, 'bagof(c, triple(sc, A, B), L), length(L, N) # L should have 21 elements'),
+       */ );
     }
 
     /**
      * @dataProvider queryProvider
      */
-    public function testQuery($db, $query) {
+    public function testQuery($db, $query, $check, $val) {
         execute($db, $query);
     }
 
