@@ -2,7 +2,6 @@
 
 require_once(__DIR__ . '/solver.php');
 
-
 /**
  * Unit test for solver : does some queries and checking no regression
  *
@@ -10,84 +9,16 @@ require_once(__DIR__ . '/solver.php');
  */
 class PrologTest extends PHPUnit_Framework_TestCase {
 
-protected $db = <<<BOZ
-triple(sc, a, b).
-triple(sc, b, c).
-triple(sc, c, d).
-triple(sc, d, e).
-triple(sc, e, f).
-triple(sc, f, g).
-triple(type, sc, transitive).
+    public function queryProvider() {
+        $fixtures = file_get_contents('fixtures_test.pro');
+        return array(array($fixtures, 'bagof(c, triple(sc, A, B), L), length(L, N) # L should have 21 elements'));
+    }
 
-triple(P, X, Y) :- NOTTHIS triple(type, P, transitive), NOTTHIS triple(P, X, Z), triple(P, Z, Y).
-
-arcsOut(X, L) :- bagof(O, triple(P, X, O), L).
-
-### Accumulated standard library lives under here!
-
-# unification and ( x, y, z; w ) support
-
-unify(X, X).
-
-# ( a, b, c ) --> conjunction([a, b, c])
-conjunction([]).
-conjunction([X | Rest]) :- call(X), conjunction(Rest).
-
-# ( a; b; c ) --> disjunction([a, b, c])
-disjunction([X | Rest]) :- call(X).
-disjunction([X | Rest]) :- disjunction(Rest).
-
-# Arithmetic
-add(A, B, C) :- external("$1 + $2", [A, B], C).   # A + B = C, etc.
-sub(A, B, C) :- external("$1 - $2", [A, B], C).
-mul(A, B, C) :- external("$1 * $2", [A, B], C).
-div(A, B, C) :- external("$1 / $2", [A, B], C).
-
-# The canonical quicksort
-qsort([], []).
-qsort([X|Rest], Answer) :- partition(X, Rest, [], Before, [], After), qsort(Before, Bsort), qsort(After, Asort), append(Bsort, [X | Asort], Answer).
-
-partition(X, [], Before, Before, After, After).
-partition(X, [Y | Rest], B, [Y | Brest], A, Arest) :- leq(X, Y), partition(X, Rest, B, Brest, A, Arest).
-partition(X, [Y | Rest], B, Brest, A, [Y | Arest]) :- gtr(X, Y), partition(X, Rest, B, Brest, A, Arest).
-
-leq(X, Y) :- compare(X, Y, gt).
-leq(X, Y) :- compare(X, Y, eq).
-gtr(X, Y) :- compare(X, Y, lt).
-
-# Some list-processing stuff...
-append([], Z, Z).
-append([A|B], Z, [A|ZZ]) :- append(B, Z, ZZ).
-
-reverse([], []).
-reverse([A|B], Z) :- reverse(B, Brev), append(Brev, [A], Z).
-
-length([], 0).
-length([H|T], N) :- length(T, M), add(M, 1, N).
-
-# Standard prolog not/1
-not(Term) :- call(Term), !, fail.
-not(Term).
-
-# Standard prolog var/1
-var(X) :- bagof(l, varTest(X), [l, l]).
-varTest(a).
-tarTest(b).
-
-factorial(0, 1).
-factorial(N, X) :- compare(N, 0, gt), sub(N, 1, N1), factorial(N1, P), mul(N, P, X).
-
-BOZ;
-
-public function queryProvider() {
-return array(array('bagof(c, triple(sc, A, B), L), length(L, N) # L should have 21 elements'));
-}
-
-/**
- * @dataProvider queryProvider
- */
-public function testQuery($query) {
-execute($this->db, $query);
-}
+    /**
+     * @dataProvider queryProvider
+     */
+    public function testQuery($db, $query) {
+        execute($db, $query);
+    }
 
 }
