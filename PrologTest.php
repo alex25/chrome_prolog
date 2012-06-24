@@ -49,4 +49,27 @@ class PrologTest extends PHPUnit_Framework_TestCase {
         $this->assertFalse($result->isSuccess());
     }
 
+    public function testAddition() {
+        $result = execute($this->program, 'add(7, 33, X)');
+        $this->assertEquals(40, $result->X);
+        $result = execute($this->program, 'add(-42, 42, X)');
+        $this->assertEquals(0, $result->X);
+    }
+
+    public function testSubstraction() {
+        $result = execute($this->program, 'sub(1, 1, X)');
+        $this->assertEquals(0, $result->X);
+        $result = execute($this->program, 'sub(7, 2, X)');
+        $this->assertEquals(5, $result->X);
+    }
+
+    public function testMultiplication() {
+        $result = execute($this->program, 'mul(42, 0, X)');
+        $this->assertEquals(0, $result->X);
+        $result = execute($this->program, 'mul(1, 1, X)');
+        $this->assertEquals(1, $result->X);
+        $result = execute($this->program, 'mul(7, 6, X)');
+        $this->assertEquals(42, $result->X);
+    }
+
 }
