@@ -559,6 +559,13 @@ class Body {
         }
     }
 
+    public function __toString() {
+        $retour = array();
+        foreach ($this->list as $item)
+            $retour[] = (string) $item;
+        return implode(', ', $retour);
+    }
+
 }
 
 function varNames($list) {
