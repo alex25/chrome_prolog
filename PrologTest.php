@@ -36,6 +36,17 @@ class PrologTest extends PHPUnit_Framework_TestCase {
     public function testLessOrEqual() {
         $result = execute($this->program, 'leq(33, 7)');
         $this->assertTrue($result->isSuccess());
+        $result = execute($this->program, 'leq(3, 7)');
+        $this->assertFalse($result->isSuccess());
+        $result = execute($this->program, 'leq(42, 42)');
+        $this->assertTrue($result->isSuccess());
+    }
+
+    public function testGreater() {
+        $result = execute($this->program, 'gtr(7, 33)');
+        $this->assertTrue($result->isSuccess());
+        $result = execute($this->program, 'gtr(77, 33)');
+        $this->assertFalse($result->isSuccess());
     }
 
 }
