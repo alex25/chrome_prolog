@@ -449,6 +449,38 @@ class Term {
         echo (")");
     }
 
+    public function __toString() {
+        $retour = '';
+        if ($this->name == "cons") {
+            $x = $this;
+            while ($x->type == "Term" && $x->name == "cons" && count($x->partlist->list) == 2) {
+                $x = $x->partlist->list[1];
+            }
+            if (($x->type == "Atom" && $x->name == "nil") || $x->type == "Variable") {
+                $x = $this;
+                $retour .= "[";
+                $com = false;
+                while ($x->type == "Term" && $x->name == "cons" && count($x->partlist->list) == 2) {
+                    if ($com)
+                        $retour .= ", ";
+                    $retour .= (string) $x->partlist->list[0];
+                    $com = true;
+                    $x = $x->partlist->list[1];
+                }
+                if ($x->type == "Variable") {
+                    $retour .=  " | ";
+                    $retour .= (string) $x;
+                }
+                $retour .=  "]";
+                return $retour;
+            }
+        }
+        $retour .= $this->name . "(";
+        $retour .= (string) $this->partlist;
+        $retour .=  ")";
+        return $retour;
+    }
+
 }
 
 class Partlist {
