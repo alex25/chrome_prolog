@@ -324,6 +324,10 @@ class Variable {
         echo $this->name;
     }
 
+    public function __toString() {
+        return $this->name;
+    }
+
 }
 
 class Tokeniser {
