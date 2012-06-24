@@ -14,7 +14,7 @@ class PrologTest extends PHPUnit_Framework_TestCase {
         return array(
             array($fixtures, 'bagof(c, triple(sc, A, B), L), length(L, N)', 'N', 21),
             array($fixtures, 'factorial(6, X)', 'X', 720),
-            array($fixtures, 'qsort([5,3,2,111,8,9,7], X)', 'X', '[2, 3, 5, 7, 8, 9, 111]')
+            array($fixtures, 'qsort([5,3,2,111,88,9,7], X)', 'X', '[2, 3, 5, 7, 9, 88, 111]')
         );
     }
 
