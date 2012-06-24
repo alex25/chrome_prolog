@@ -8,9 +8,10 @@ My first goal is to validate, debug (if necessary) and port this js to php : goa
 
 Next goals :
 * make a library : done
-* re-routing output results in array : in progress 
-* PhpUnit testing this library
+* re-routing output results in array : done 
+* PhpUnit testing this library : in progress
 * remove all notice and some strange features (removing NOTTHIS for example)
+* classify all this bunch of functions
 * namespacing the classes
 * refactor the model to be more PHP-like and not js-like (remove some weird object)
 * using getters and setters
