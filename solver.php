@@ -533,6 +533,14 @@ class Rule {
         }
     }
 
+    public function __toString() {
+        if ($this->body == null) {
+            return ((string) $this->head) . ".";
+        } else {
+            return sprintf("%s :- %s.", $this->head, $this->body);
+        }
+    }
+
 }
 
 class Body {
