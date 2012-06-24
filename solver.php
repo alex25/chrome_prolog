@@ -7,7 +7,8 @@
 
 function execute($rules, $query, $show = false) {
 
-    if ($show) echo ("Parsing rulesets.\n");
+    if ($show)
+        echo ("Parsing rulesets.\n");
 
     $rules = explode("\n", $rules);
     $outr = array();
@@ -24,7 +25,8 @@ function execute($rules, $query, $show = false) {
             $parsedRule->dump();
     }
 
-    if ($show) echo ("\nAttaching builtins to database.\n");
+    if ($show)
+        echo ("\nAttaching builtins to database.\n");
     $outr['builtin'] = array(
         "compare/3" => 'Comparitor',
         "cut/0" => 'Cut',
@@ -35,9 +37,11 @@ function execute($rules, $query, $show = false) {
         "external2/3" => 'ExternalAndParse'
     );
 
-    if ($show) echo ("Attachments done.\n");
+    if ($show)
+        echo ("Attachments done.\n");
 
-    if ($show) echo ("\nParsing query.\n");
+    if ($show)
+        echo ("\nParsing query.\n");
     $q = ParseBody(new Tokeniser($query));
     if ($q == null) {
         echo ("An error occurred parsing the query.\n");
@@ -52,7 +56,6 @@ function execute($rules, $query, $show = false) {
 
     $vs = array_values(varNames($q->list));
     //$pile = new ReportStack();
-
     // Prove the query.
     prove(renameVariables($q->list, 0, array()), array(), $outr, 1, applyOne('printVars', $vs));
     //$pile->dump();
@@ -299,6 +302,10 @@ class Atom {
 
     public function dump() {
         echo $this->name;
+    }
+
+    public function __toString() {
+        return $this->name;
     }
 
 }
@@ -934,7 +941,7 @@ class ReportStack {
     public function dump() {
         print_r($this->stack);
     }
-    
+
     public function __get($name) {
         return $this->stack[$name];
     }
