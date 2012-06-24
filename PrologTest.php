@@ -12,19 +12,20 @@ class PrologTest extends PHPUnit_Framework_TestCase {
     public function queryProvider() {
         $fixtures = file_get_contents('fixtures_test.pro');
         return array(
-            array($fixtures, 'bagof(c, triple(sc, A, B), L), length(L, N)', 'N', 21),
-         /*   array($fixtures, 'bagof(c, triple(sc, A, B), L), length(L, N) # L should have 21 elements'),
-            array($fixtures, 'bagof(c, triple(sc, A, B), L), length(L, N) # L should have 21 elements'),
-            array($fixtures, 'bagof(c, triple(sc, A, B), L), length(L, N) # L should have 21 elements'),
-       */ );
+            array($fixtures, 'bagof(c, triple(sc, A, B), L), length(L, N)', '#N = 21#'),
+            array($fixtures, 'factorial(6, X)', '#X = 720#'),
+            array($fixtures, 'qsort([5,3,2,111,8,9,7], X)', '#X = \[2, 3, 5, 7, 8, 9, 111\]#'),
+            array($fixtures, 'leq(33, 7)', '#true#'),
+        );
     }
 
     /**
      * @dataProvider queryProvider
      */
-    public function testQuery($db, $query, $check, $val) {
+    public function testQuery($db, $query, $val) {
+        $this->expectOutputRegex($val);
         $result = execute($db, $query);
-        $this->assertEquals($val, $result->$check);
+     //   $this->assertEquals($val, $result->$check);
     }
 
 }

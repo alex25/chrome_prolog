@@ -7,7 +7,7 @@
 
 function execute($rules, $query, $show = false) {
 
-    echo ("Parsing rulesets.\n");
+    if ($show) echo ("Parsing rulesets.\n");
 
     $rules = explode("\n", $rules);
     $outr = array();
@@ -24,7 +24,7 @@ function execute($rules, $query, $show = false) {
             $parsedRule->dump();
     }
 
-    echo ("\nAttaching builtins to database.\n");
+    if ($show) echo ("\nAttaching builtins to database.\n");
     $outr['builtin'] = array(
         "compare/3" => 'Comparitor',
         "cut/0" => 'Cut',
@@ -35,9 +35,9 @@ function execute($rules, $query, $show = false) {
         "external2/3" => 'ExternalAndParse'
     );
 
-    echo ("Attachments done.\n");
+    if ($show) echo ("Attachments done.\n");
 
-    echo ("\nParsing query.\n");
+    if ($show) echo ("\nParsing query.\n");
     $q = ParseBody(new Tokeniser($query));
     if ($q == null) {
         echo ("An error occurred parsing the query.\n");
@@ -51,12 +51,12 @@ function execute($rules, $query, $show = false) {
     }
 
     $vs = array_values(varNames($q->list));
-    $pile = new ReportStack();
-    //print_r(renameVariables($q->list, 0, array()));
+    //$pile = new ReportStack();
+
     // Prove the query.
-    prove(renameVariables($q->list, 0, array()), array(), $outr, 1, applyOne(array($pile, 'log'), $vs));
-    $pile->dump();
-    return $pile;
+    prove(renameVariables($q->list, 0, array()), array(), $outr, 1, applyOne('printVars', $vs));
+    //$pile->dump();
+    //return $pile;
 }
 
 // Go through a list of terms (ie, a Body or Partlist's list) renaming variables
@@ -926,7 +926,7 @@ class ReportStack {
         if (count($which) != 0) {
             for ($i = 0; $i < count($which); $i++) {
                 $obj = value(new Variable($which[$i]->name . ".0"), $environment);
-                $this->stack[$which[$i]->name] = $obj->name;
+                $this->stack[$which[$i]->name] = $obj;
             }
         }
     }
