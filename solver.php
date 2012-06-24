@@ -468,16 +468,16 @@ class Term {
                     $x = $x->partlist->list[1];
                 }
                 if ($x->type == "Variable") {
-                    $retour .=  " | ";
+                    $retour .= " | ";
                     $retour .= (string) $x;
                 }
-                $retour .=  "]";
+                $retour .= "]";
                 return $retour;
             }
         }
         $retour .= $this->name . "(";
         $retour .= (string) $this->partlist;
-        $retour .=  ")";
+        $retour .= ")";
         return $retour;
     }
 
@@ -497,6 +497,13 @@ class Partlist {
             if ($i < count($this->list) - 1)
                 print (", ");
         }
+    }
+
+    public function __toString() {
+        $retour = array();
+        foreach ($this->list as $item)
+            $retour[] = (string) $item;
+        return implode(', ', $retour);
     }
 
 }
