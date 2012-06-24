@@ -985,13 +985,16 @@ function External($thisTerm, $goalList, $environment, $db, $level, $reportFuncti
 class ReportStack {
 
     protected $stack = array();
+    protected $success = false;
 
     public function log($which, $environment) {
         // Print bindings.
-        if (count($which) != 0) {
+        if (count($which) == 0) {
+            $this->success = true;
+        } else {
             for ($i = 0; $i < count($which); $i++) {
                 $obj = value(new Variable($which[$i]->name . ".0"), $environment);
-                $this->stack[$which[$i]->name] = $obj;
+                $this->stack[$which[$i]->name] = (string) $obj;
             }
         }
     }
