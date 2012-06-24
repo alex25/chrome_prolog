@@ -55,11 +55,11 @@ function execute($rules, $query, $show = false) {
     }
 
     $vs = array_values(varNames($q->list));
-    //$pile = new ReportStack();
+    $pile = new ReportStack();
     // Prove the query.
-    prove(renameVariables($q->list, 0, array()), array(), $outr, 1, applyOne('printVars', $vs));
-    //$pile->dump();
-    //return $pile;
+    prove(renameVariables($q->list, 0, array()), array(), $outr, 1, applyOne(array($pile, 'log'), $vs));
+
+    return $pile;
 }
 
 // Go through a list of terms (ie, a Body or Partlist's list) renaming variables
@@ -305,7 +305,7 @@ class Atom {
     }
 
     public function __toString() {
-        return $this->name;
+        return (string) $this->name;
     }
 
 }
@@ -1001,10 +1001,16 @@ class ReportStack {
 
     public function dump() {
         print_r($this->stack);
+        if ($this->success)
+            echo "\ntrue\n";
     }
 
     public function __get($name) {
         return $this->stack[$name];
+    }
+
+    public function isSuccess() {
+        return $this->success;
     }
 
 }
