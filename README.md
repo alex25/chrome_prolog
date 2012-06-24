@@ -8,6 +8,7 @@ My first goal is to validate, debug (if necessary) and port this js to php : goa
 
 Next goals :
 * make a library : done
+* re-routing output results in array : in progress 
 * PhpUnit testing this library
 * remove all notice and some strange features (removing NOTTHIS for example)
 * namespacing the classes
