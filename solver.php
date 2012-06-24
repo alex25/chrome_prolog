@@ -992,9 +992,9 @@ class ReportStack {
         if (count($which) == 0) {
             $this->success = true;
         } else {
-            for ($i = 0; $i < count($which); $i++) {
-                $obj = value(new Variable($which[$i]->name . ".0"), $environment);
-                $this->stack[$which[$i]->name] = (string) $obj;
+            foreach ($which as $item) {
+                $obj = value(new Variable($item->name . ".0"), $environment);
+                $this->stack[$item->name] = (string) $obj;
             }
         }
     }
