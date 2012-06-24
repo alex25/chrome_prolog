@@ -22,7 +22,7 @@ function execute($rules, $query, $show = false) {
         $outr[] = $parsedRule;
         // print ("Rule "+outi+" is : ");
         if ($show)
-            $parsedRule->dump();
+            echo $parsedRule . "\n";
     }
 
     if ($show)
