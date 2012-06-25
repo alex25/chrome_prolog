@@ -1,3 +1,22 @@
+determinant(la).
+determinant(le).
+nom(souris).
+nom(chat).
+adjectif(blanc).
+adjectif(rouge).
+adjectif(blanche).
+genre(la,feminin).
+genre(le,masculin).
+genre(souris,feminin).
+genre(chat,masculin).
+genre(blanc,masculin).
+genre(blanche,feminin).
+genre(rouge,_).
+
+accord(X,Y) :- genre(X,Z), genre(Y,Z).
+sn(X,Y) :- determinant(X), nom(Y), accord(X,Y).
+sn(X,Y) :- nom(X), adjectif(Y), accord(X,Y).
+p(snm(determinant(X),nom(Y),G),X,Y) :- sn(X,Y), genre(X,G).
 
 ### Accumulated standard library lives under here!
 
@@ -52,3 +71,8 @@ tarTest(b).
 
 factorial(0, 1).
 factorial(N, X) :- compare(N, 0, gt), sub(N, 1, N1), factorial(N1, P), mul(N, P, X).
+
+max(X,Y,X):- leq(X, Y), !.
+max(X,Y,Y).
+
+

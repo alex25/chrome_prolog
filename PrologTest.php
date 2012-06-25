@@ -93,4 +93,18 @@ class PrologTest extends PHPUnit_Framework_TestCase {
         $this->assertFalse($result->isSuccess());
     }
 
+    public function testCut() {
+        $result = execute($this->program, 'max(111, 666, X)');
+        $this->assertEquals(666, $result->X);
+        $result = execute($this->program, 'max(111, 66, X)');
+        $this->assertEquals(111, $result->X);
+        $result = execute($this->program, 'max(111, 66, 111)');
+        $this->assertTrue($result->isSuccess());
+    }
+
+     public function testLanguage() {
+        $result = execute($this->program, 'genre(Mot,masculin)');
+        $this->fail('There are multiple values for Mot');
+        $this->assertEquals('rouge', $result->Mot);
+     }
 }
