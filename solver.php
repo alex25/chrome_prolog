@@ -81,15 +81,6 @@ function renameVariables($list, $level, $parent) {
 
     foreach ($list as $i => $item) {
         $out[$i] = renameVariables($list[$i], $level, $parent);
-        /*
-          if (list[i].type == "Atom") {
-          out[i] = list[i];
-          } else if (list[i].type == "Variable") {
-          out[i] = new Variable(list[i].name + "." + level);
-          } else if (list[i].type == "Term") {
-          (out[i] = new Term(list[i].name, renameVariables(list[i].partlist.list, level, parent))).parent = parent;
-          }
-         */
     }
 
     return $out;
@@ -866,15 +857,6 @@ function BagOf($thisTerm, $goalList, $environment, $db, $level, $reportFunction)
     // optional here: nil anslist -> fail?
     $answers = new Atom("nil");
 
-    /*
-      print("Debug: anslist = [");
-      for (var j = 0; j < anslist.length; j++) {
-      anslist[j].print();
-      print(", ");
-      }
-      print("]\n");
-     */
-
     for ($i = count($anslist->list); $i > 0; $i--)
         $answers = new Term("cons", array($anslist->list[$i - 1], $answers));
 
@@ -892,16 +874,7 @@ function BagOf($thisTerm, $goalList, $environment, $db, $level, $reportFunction)
 
 // Aux function: return the reportFunction to use with a bagof subgoal
 function BagOfCollectFunction($collect, $anslist) {
-    return function($env) use ($collect, $anslist) {
-                /*
-                  print("DEBUG: solution in bagof/3 found...\n");
-                  print("Value of collection term ");
-                  collect.print();
-                  print(" in this environment = ");
-                  (value(collect, env)).print();
-                  print("\n");
-                  printEnv(env);
-                 */
+    return function($env) use ($collect, $anslist) {             
                 // Rename this appropriately and throw it into anslist
                 $anslist->list[count($anslist->list)] = renameVariables(value($collect, $env), $anslist->renumber--, array());
             };
