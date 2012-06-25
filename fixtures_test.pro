@@ -1,14 +1,3 @@
-triple(sc, a, b).
-triple(sc, b, c).
-triple(sc, c, d).
-triple(sc, d, e).
-triple(sc, e, f).
-triple(sc, f, g).
-triple(type, sc, transitive).
-
-triple(P, X, Y) :- NOTTHIS triple(type, P, transitive), NOTTHIS triple(P, X, Z), triple(P, Z, Y).
-
-arcsOut(X, L) :- bagof(O, triple(P, X, O), L).
 
 ### Accumulated standard library lives under here!
 

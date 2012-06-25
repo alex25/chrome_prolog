@@ -156,12 +156,6 @@ function ParseTerm($tk) {
         return new Term("cut", array());
     }
 
-    $notthis = false;
-    if ($tk->current == "NOTTHIS") {
-        $notthis = true;
-        $tk->consume();
-    }
-
     if ($tk->type != "id")
         return null;
     $name = $tk->current;
@@ -197,8 +191,7 @@ function ParseTerm($tk) {
     $tk->consume();
 
     $term = new Term($name, $p);
-    if ($notthis)
-        $term->excludeThis = true;
+
     return $term;
 }
 
@@ -622,12 +615,6 @@ function prove($goalList, $environment, $db, $level, $reportFunction) {
         if ($i === 'builtin')
             continue;
 
-        //print ("Debug: in rule selection. thisTerm = "); thisTerm.print(); print ("\n");
-        if (property_exists($thisTerm, 'excludeRule') && $thisTerm->excludeRule === $i) {
-            // print("DEBUG: excluding rule number $i in attempt to satisfy "); $thisTerm->dump(); print("\n");
-            continue;
-        }
-
         $rule = $db[$i];
 
         // We'll need better unification to allow the 2nd-order
@@ -650,8 +637,6 @@ function prove($goalList, $environment, $db, $level, $reportFunction) {
             $newGoals = array();
             for ($j = 0; $j < count($newFirstGoals); $j++) {
                 $newGoals[$j] = $newFirstGoals[$j];
-                if ($rule->body->list[$j]->excludeThis)
-                    $newGoals[$j]->excludeRule = $i;
             }
             for ($k = 1; $k < count($goalList); $k++)
                 $newGoals[$j++] = $goalList[$k];
