@@ -11,9 +11,9 @@ My first goal is to validate, debug (if necessary) and port this js to php : goa
 Next goals :
 * make a library : done
 * re-routing output results in array : done
-* PhpUnit testing this library : in progress
+* PhpUnit testing this library : done, including Travis CI
 * remove all notice and some strange features : done
-* classify all this bunch of functions
+* classify all this bunch of functions : in progress
 * namespacing the classes
 * refactor the model to be more PHP-like and not js-like (remove some weird object)
 * using getters and setters
