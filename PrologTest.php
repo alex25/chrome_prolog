@@ -104,7 +104,7 @@ class PrologTest extends PHPUnit_Framework_TestCase {
 
      public function testLanguage() {
         $result = execute($this->program, 'genre(Mot,masculin)');
-        $this->fail('There are multiple values for Mot');
-        $this->assertEquals('rouge', $result->Mot);
+        $this->assertEquals(array('le', 'chat', 'blanc', 'rouge'), $result->Mot);
      }
+
 }

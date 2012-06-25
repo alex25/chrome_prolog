@@ -981,7 +981,14 @@ class ReportStack {
         } else {
             foreach ($which as $item) {
                 $obj = value(new Variable($item->name . ".0"), $environment);
-                $this->stack[$item->name] = (string) $obj;
+                if (array_key_exists($item->name, $this->stack)) {
+                    if (!is_array($this->stack[$item->name])) {
+                        $this->stack[$item->name] = array($this->stack[$item->name]);
+                    }
+                    $this->stack[$item->name][] = (string) $obj;
+                } else {
+                    $this->stack[$item->name] = (string) $obj;
+                }
             }
         }
     }
