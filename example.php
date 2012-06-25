@@ -3,17 +3,6 @@
 require_once(__DIR__ . '/solver.php');
 
 $rules = <<<BOZ
-triple(sc, a, b).
-triple(sc, b, c).
-triple(sc, c, d).
-triple(sc, d, e).
-triple(sc, e, f).
-triple(sc, f, g).
-triple(type, sc, transitive).
-
-triple(P, X, Y) :- NOTTHIS triple(type, P, transitive), NOTTHIS triple(P, X, Z), triple(P, Z, Y).
-
-arcsOut(X, L) :- bagof(O, triple(P, X, O), L).
 
 ### Accumulated standard library lives under here!
 
@@ -71,7 +60,6 @@ factorial(N, X) :- compare(N, 0, gt), sub(N, 1, N1), factorial(N1, P), mul(N, P,
 
 
 BOZ;
-$query = "bagof(c, triple(sc, A, B), L), length(L, N) # L should have 21 elements";
 $query = "factorial(6, X) # should return 720";
 $query = "qsort([5,3,2,111,8,9,7], X)";
 //$query = "leq(33, 7)";
