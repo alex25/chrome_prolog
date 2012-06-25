@@ -28,7 +28,7 @@ class PrologTest extends PHPUnit_Framework_TestCase {
         $borneSup = 20;
         $std = range(0, $borneSup);
         $retour = array();
-        for ($i = 0; $i < 5; $i++) {
+        for ($i = 0; $i < 4; $i++) {
             shuffle($std);
             $retour[] = array('[' . implode(',', $std) . ']', $borneSup);
         }
