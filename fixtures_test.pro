@@ -13,10 +13,10 @@ genre(blanc,masculin).
 genre(blanche,feminin).
 genre(rouge,_).
 
-accord(X,Y) :- genre(X,Z), genre(Y,Z).
-sn(X,Y) :- determinant(X), nom(Y), accord(X,Y).
-sn(X,Y) :- nom(X), adjectif(Y), accord(X,Y).
-p(snm(determinant(X),nom(Y),G),X,Y) :- sn(X,Y), genre(X,G).
+accord(X, Y) :- genre(X,Z), genre(Y, Z).
+sn(X, Y) :- determinant(X), nom(Y), accord(X, Y).
+sn(X, Y) :- nom(X), adjectif(Y), accord(X, Y).
+p(snm(determinant(X), nom(Y), G), X, Y) :- sn(X, Y), genre(X, G).
 
 ### Accumulated standard library lives under here!
 
