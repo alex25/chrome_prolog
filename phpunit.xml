@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <phpunit>
+    <php>
+        <ini name="xdebug.max_nesting_level" value="1000"/>
+    </php>
     <testsuites>
         <testsuite name="Query">
             <directory>.</directory>
