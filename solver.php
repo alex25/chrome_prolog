@@ -993,7 +993,8 @@ class ReportStack {
     }
 
     public function __get($name) {
-        return (count($this->stack[$name]) > 1) ? $this->stack[$name] : $this->stack[$name][0];
+        $val = $this->stack[$name];
+        return (count($val) > 1) ? $val : $val[0];
     }
 
     public function isSuccess() {
