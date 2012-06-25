@@ -107,4 +107,9 @@ class PrologTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(array('le', 'chat', 'blanc', 'rouge'), $result->Mot);
      }
 
+     public function testComplexQuery() {
+         $result = execute($this->program, 'p(S,le,chat)');
+         $this->assertEquals('snm(determinant(le), nom(chat), masculin)', $result->S);
+     }
+
 }
