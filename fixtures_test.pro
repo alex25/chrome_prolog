@@ -18,6 +18,18 @@ sn(X, Y) :- determinant(X), nom(Y), accord(X, Y).
 sn(X, Y) :- nom(X), adjectif(Y), accord(X, Y).
 p(snm(determinant(X), nom(Y), G), X, Y) :- sn(X, Y), genre(X, G).
 
+# factorial
+factorial(0, 1).
+factorial(N, X) :- compare(N, 0, gt), sub(N, 1, N1), factorial(N1, P), mul(N, P, X).
+
+# max/2
+max(X,Y,X):- leq(X, Y), !.
+max(X,Y,Y).
+
+# max liste
+maxlist(X, [X]).
+maxlist(X, [Y | Z]) :- maxlist(XX, Z), disjunction([conjunction([leq(XX, Y), unify(X, XX)]), conjunction([gtr(XX, Y), unify(X, Y)])]).
+
 ### Accumulated standard library lives under here!
 
 # unification and ( x, y, z; w ) support
@@ -69,10 +81,5 @@ var(X) :- bagof(l, varTest(X), [l, l]).
 varTest(a).
 tarTest(b).
 
-factorial(0, 1).
-factorial(N, X) :- compare(N, 0, gt), sub(N, 1, N1), factorial(N1, P), mul(N, P, X).
-
-max(X,Y,X):- leq(X, Y), !.
-max(X,Y,Y).
 
 

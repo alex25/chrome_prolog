@@ -19,10 +19,21 @@ class PrologTest extends PHPUnit_Framework_TestCase {
 
     public function queryProvider() {
         return array(
-        //    array('bagof(c, triple(sc, A, B), L), length(L, N)', 'N', 21),
             array('factorial(6, X)', 'X', 720),
             array('qsort([5,3,2,111,88,9,7], X)', 'X', '[2, 3, 5, 7, 9, 88, 111]')
         );
+    }
+
+    public function randomList() {
+        $borneSup = 20;
+        $std = range(0, $borneSup);
+        $retour = array();
+        for ($i = 0; $i < 5; $i++) {
+            shuffle($std);
+            $retour[] = array('[' . implode(',', $std) . ']', $borneSup);
+        }
+
+        return $retour;
     }
 
     /**
@@ -102,19 +113,27 @@ class PrologTest extends PHPUnit_Framework_TestCase {
         $this->assertTrue($result->isSuccess());
     }
 
-     public function testLanguage() {
+    public function testLanguage() {
         $result = execute($this->program, 'genre(Mot,masculin)');
         $this->assertEquals(array('le', 'chat', 'blanc', 'rouge'), $result->Mot);
-     }
+    }
 
-     public function testComplexQuerySingle() {
-         $result = execute($this->program, 'p(S,le,chat)');
-         $this->assertEquals('snm(determinant(le), nom(chat), masculin)', $result->S);
-     }
+    public function testComplexQuerySingle() {
+        $result = execute($this->program, 'p(S,le,chat)');
+        $this->assertEquals('snm(determinant(le), nom(chat), masculin)', $result->S);
+    }
 
-     public function testComplexQueryMulti_1() {
-         $result = execute($this->program, 'p(S,X,rouge)');
-         $this->assertEquals(array('souris', 'chat'), $result->X);
-     }
+    public function testComplexQueryMulti_1() {
+        $result = execute($this->program, 'p(S,X,rouge)');
+        $this->assertEquals(array('souris', 'chat'), $result->X);
+    }
+
+    /**
+     * @dataProvider randomList
+     */
+    public function testMaxList($tab, $maxi) {
+        $result = execute($this->program, "maxlist(X, $tab)");
+        $this->assertEquals($maxi, $result->X);
+    }
 
 }
