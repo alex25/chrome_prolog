@@ -405,6 +405,8 @@ class Term {
     public $name;
     public $type;
     public $partlist;
+    public $cut = false;
+    public $parent = null;
 
     public function __construct($head, $list) {
         $this->name = $head;
@@ -657,7 +659,7 @@ function prove($goalList, $environment, $db, $level, $reportFunction) {
             //print ("Debug: this goal "); thisTerm.print(); print(" has been cut.\n");
             break;
         }
-        if ($thisTerm->parent->cut) {
+        if ($thisTerm->parent && $thisTerm->parent->cut) {
             //print ("Debug: parent goal "); thisTerm.parent.print(); print(" has been cut.\n");
             break;
         }

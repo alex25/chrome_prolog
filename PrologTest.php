@@ -1,5 +1,5 @@
 <?php
-error_reporting(E_ALL && ~E_NOTICE);
+//error_reporting(E_ALL && ~E_NOTICE);
 
 require_once(__DIR__ . '/solver.php');
 
@@ -71,6 +71,27 @@ class PrologTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(1, $result->X);
         $result = execute($this->program, 'mul(7, 6, X)');
         $this->assertEquals(42, $result->X);
+    }
+
+    public function testUnify() {
+        $result = execute($this->program, 'unify(7, 33)');
+        $this->assertFalse($result->isSuccess());
+        $result = execute($this->program, 'unify(42, 42)');
+        $this->assertTrue($result->isSuccess());
+        $result = execute($this->program, 'unify(X, 666)');
+        $this->assertEquals(666, $result->X);
+        $result = execute($this->program, 'unify(666, X)');
+        $this->assertEquals(666, $result->X);
+    }
+
+    /**
+     * @depends testUnify
+     */
+    public function testNot() {
+        $result = execute($this->program, 'not(unify(7, 33))');
+        $this->assertTrue($result->isSuccess());
+        $result = execute($this->program, 'not(unify(666, 666))');
+        $this->assertFalse($result->isSuccess());
     }
 
 }
