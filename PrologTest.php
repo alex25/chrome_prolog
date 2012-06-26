@@ -136,4 +136,9 @@ class PrologTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals($maxi, $result->X);
     }
 
+
+    public function testBagOf() {
+        $result = execute($this->program, "bagof(C, foo(A, B, C), Cs)");
+        $this->assertEquals($result->Cs, '[c, d, e, f, g]');
+    }
 }

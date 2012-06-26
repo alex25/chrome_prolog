@@ -30,6 +30,13 @@ max(X,Y,Y).
 maxlist(X, [X]).
 maxlist(X, [Y | Z]) :- maxlist(XX, Z), disjunction([conjunction([leq(XX, Y), unify(X, XX)]), conjunction([gtr(XX, Y), unify(X, Y)])]).
 
+# for bagof test
+foo(a, b, c).
+foo(a, b, d).
+foo(b, c, e).
+foo(b, c, f).
+foo(c, c, g).
+
 ### Accumulated standard library lives under here!
 
 # unification and ( x, y, z; w ) support

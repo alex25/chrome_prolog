@@ -624,9 +624,10 @@ class Interpreteur
 // Aux function: return the reportFunction to use with a bagof subgoal
     function BagOfCollectFunction($collect, $anslist)
     {
-        return function($env) use ($collect, $anslist) {
+        $zis = $this;
+        return function($env) use ($collect, $anslist, $zis) {
                     // Rename this appropriately and throw it into anslist
-                    $anslist->list[count($anslist->list)] = $this->renameVariables(value($collect, $env), $anslist->renumber--, array());
+                    $anslist->list[count($anslist->list)] = $zis->renameVariables($zis->value($collect, $env), $anslist->renumber--, array());
                 };
     }
 
