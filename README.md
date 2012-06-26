@@ -4,7 +4,7 @@ Prolog has very limited use but it can simplify some problems with few lines.
 For example, you can avoid big boring sequences of if-else-switch in PHP
 to implement business intelligence with limited rules and predicates of Prolog.
 
-[![Build Status](https://secure.travis-ci.org/Trismegiste/chrome_prolog.png)](http://travis-ci.org/Trismegiste/chrome_prolog)
+[![Build Status](https://secure.travis-ci.org/Trismegiste/InferenceBundle.png)](http://travis-ci.org/Trismegiste/InferenceBundle)
 
 My first goal is to validate, debug (if necessary) and port this js to php : goal achieved
 
