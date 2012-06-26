@@ -15,7 +15,7 @@ function execute($rules, $query)
 class Interpreter
 {
 
-    function execute($rules, $query, $show = false)
+    public function execute($rules, $query, $show = false)
     {
 
         if ($show)
@@ -44,8 +44,7 @@ class Interpreter
             "call/1" => 'Call',
             "fail/0" => 'Fail',
             "bagof/3" => 'BagOf',
-            "external/3" => 'External',
-            "external2/3" => 'ExternalAndParse'
+            "external/3" => 'External'
         );
 
         if ($show)
