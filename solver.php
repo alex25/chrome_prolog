@@ -598,7 +598,7 @@ class Interpreteur
         $newGoals[0] = $newGoal;
 
         // Prove this subgoal, collecting up the environments...
-        $anslist = new stdClass();
+        $anslist = new stdClass();  // TODO : this object sux
         $anslist->list = array();
         $anslist->renumber = -1;
         $ret = $this->prove($newGoals, $environment, $db, $level + 1, $this->BagOfCollectFunction($collect, $anslist));
