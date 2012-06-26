@@ -15,11 +15,6 @@ class Atom
         $this->type = "Atom";
     }
 
-    public function dump()
-    {
-        echo $this->name;
-    }
-
     public function __toString()
     {
         return (string) $this->name;
@@ -37,11 +32,6 @@ class Variable
     {
         $this->name = $head;
         $this->type = "Variable";
-    }
-
-    public function dump()
-    {
-        echo $this->name;
     }
 
     public function __toString()
@@ -193,15 +183,6 @@ class Partlist
         $this->list = $list;
     }
 
-    public function dump()
-    {
-        for ($i = 0; $i < count($this->list); $i++) {
-            $this->list[$i]->dump();
-            if ($i < count($this->list) - 1)
-                print (", ");
-        }
-    }
-
     public function __toString()
     {
         $retour = array();
@@ -227,19 +208,6 @@ class Rule
             $this->body = null;
     }
 
-    public function dump()
-    {
-        if ($this->body == null) {
-            $this->head->dump();
-            echo (".\n");
-        } else {
-            $this->head->dump();
-            print (" :- ");
-            $this->body->dump();
-            print (".\n");
-        }
-    }
-
     public function __toString()
     {
         if ($this->body == null) {
@@ -259,15 +227,6 @@ class Body
     public function __construct($list)
     {
         $this->list = $list;
-    }
-
-    public function dump()
-    {
-        for ($i = 0; $i < count($this->list); $i++) {
-            $this->list[$i]->dump();
-            if ($i < count($this->list) - 1)
-                echo (", ");
-        }
     }
 
     public function __toString()
