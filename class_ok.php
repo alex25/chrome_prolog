@@ -317,7 +317,7 @@ class ReportStack
     protected $success = false;
     protected $interpreter = null;
 
-    public function __construct(Interpreteur $solv)
+    public function __construct(Interpreter $solv)
     {
         $this->interpreter = $solv;
     }

@@ -8,11 +8,11 @@ require_once(__DIR__ . '/class_ok.php');
 
 function execute($rules, $query)
 {
-    $obj = new Interpreteur();
+    $obj = new Interpreter();
     return $obj->execute($rules, $query);
 }
 
-class Interpreteur
+class Interpreter
 {
 
     function execute($rules, $query, $show = false)
