@@ -61,7 +61,7 @@ class Interpreteur
         $q = new Body($q);
         if ($show) {
             echo ("Query is: ");
-            $q->dump();
+            echo $q;
             echo ("\n\n");
         }
 
@@ -467,24 +467,7 @@ class Interpreteur
 
         return $ne;
     }
-
-    function printVars($which, $environment)
-    {
-        // Print bindings.
-        if (count($which) == 0) {
-            echo ("true\n");
-        } else {
-            for ($i = 0; $i < count($which); $i++) {
-                echo ($which[$i]->name);
-                echo (" = ");
-                $obj = $this->value(new Variable($which[$i]->name . ".0"), $environment);
-                $obj->dump();
-                echo ("\n");
-            }
-        }
-        echo ("\n");
-    }
-
+  
 // A sample builtin function, including all the bits you need to get it to work
 // within the general proving mechanism.
 // compare(First, Second, CmpValue)
