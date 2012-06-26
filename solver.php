@@ -1,8 +1,7 @@
 <?php
 
 /*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+ * Prolog interpreter - Inference Engine
  */
 
 function execute($rules, $query, $show = false) {
@@ -874,7 +873,7 @@ function BagOf($thisTerm, $goalList, $environment, $db, $level, $reportFunction)
 
 // Aux function: return the reportFunction to use with a bagof subgoal
 function BagOfCollectFunction($collect, $anslist) {
-    return function($env) use ($collect, $anslist) {             
+    return function($env) use ($collect, $anslist) {
                 // Rename this appropriately and throw it into anslist
                 $anslist->list[count($anslist->list)] = renameVariables(value($collect, $env), $anslist->renumber--, array());
             };
