@@ -147,36 +147,6 @@ class Term
         $this->type = "Term";
     }
 
-    public function dump()
-    {
-        if ($this->name == "cons") {
-            $x = $this;
-            while ($x->type == "Term" && $x->name == "cons" && count($x->partlist->list) == 2) {
-                $x = $x->partlist->list[1];
-            }
-            if (($x->type == "Atom" && $x->name == "nil") || $x->type == "Variable") {
-                $x = $this;
-                echo ("[");
-                $com = false;
-                while ($x->type == "Term" && $x->name == "cons" && count($x->partlist->list) == 2) {
-                    if ($com)
-                        echo (", ");
-                    $x->partlist->list[0]->dump();
-                    $com = true;
-                    $x = $x->partlist->list[1];
-                }
-                if ($x->type == "Variable") {
-                    echo (" | ");
-                    $x->dump();
-                }
-                echo ("]");
-                return;
-            }
-        }
-        echo $this->name . "(";
-        $this->partlist->dump();
-        echo (")");
-    }
 
     public function __toString()
     {
