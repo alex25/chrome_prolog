@@ -892,13 +892,15 @@ input, select, textarea
 		//print("DEBUG: External/3 about to eval \""+r+"\"\n");
 
 		var ret;
-		with(EvalContext)
-			ret = eval(r);
+        try {
+            with(EvalContext)
+                ret = eval(r);            
+        } catch(exc) {
+            print('Cannot evaluate ' + r + "\n")
+            ret = 'nil'
+        }
 
 		//print("DEBUG: External/3 got "+ret+" back\n");
-
-		if (!ret) ret = "nil";
-
 
 		// Convert back into an atom...
 		var env2 = unify(thisTerm.partlist.list[2], new Atom(ret), environment);

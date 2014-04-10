@@ -1,9 +1,0 @@
-{
-  "name": "Prolog",
-  "version": "1.0",
-  "description": "A Prolog interpreter",
-  "browser_action": {
-    "default_icon": "icon.png",
-    "popup": "prolog.html"
-  }
-}
